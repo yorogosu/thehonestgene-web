@@ -1,0 +1,103 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="upload-page">
+  <style>
+    :host {
+      @apply(--layout-vertical);
+      
+    }
+    
+        .header h1 {
+      display:inline-block;
+    }
+    .big {
+    height: 32px;
+    width: 32px;
+  }
+  paper-toolbar {
+    --paper-toolbar-background:#4CAF50;
+  }
+  #dropzone {
+    @apply(--layout-vertical);
+    @apply(--layout-center-center);
+    height:500px;
+    width:700px;
+    background-color: #FFFFFF;
+  }
+ 
+  .container {
+     @apply(--layout-vertical);
+     @apply(--layout-flex);
+     @apply(--layout-center-center);
+  }
+  </style>
+  <template>
+     <paper-toolbar id="header">
+        <iron-icon class="big"  icon="arrow-back" on-tap="_close"></iron-icon>
+        <h1>Normal Upload</h1>
+      </paper-toolbar>
+      <div class="container" id="dropzonecontainer">
+      <paper-material id="dropzone" elevation="2" >
+        <h-file-upload id="upload" url="/api/genotype"></h-file-upload>
+    </paper-material>
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'upload-page',
+    
+    behaviors: [
+      Polymer.NeonSharedElementAnimatableBehavior
+    ],
+    properties: {
+      sharedElements: {
+        value: function() {
+          return {
+            'hero': this.$.header
+          }
+        }
+      },
+          animationConfig: {
+        value: function() {
+          return {
+            'entry': [{
+              name: 'hero-animation',
+              id: 'hero',
+              toPage: this
+            },
+            {
+              name:'scale-up-animation',
+              node: this.$.dropzonecontainer
+            }],
+            'exit': [{
+              name: 'hero-animation',
+              id: 'hero',
+              fromPage: this
+            },
+            {
+              name:'scale-down-animation',
+              node:this.$.dropzonecontainer
+            }],
+          };
+        }
+      }
+    },
+    _close:function() {
+      this.$.upload.reset();
+      this.fire('close-card');
+    }
+  });
+})();
+</script>

@@ -1,0 +1,200 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="h-file-upload">
+  <style>
+    :host {
+      
+    }
+    .dropzone {
+      
+        cursor:pointer;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+        
+    }
+    .hover {
+      border: 1px dashed DarkGray;
+    }
+    #uploadBtn  {
+      
+    }
+    #cancelBtn {
+      
+    }
+    .buttonrow {
+      position:absolute;
+      bottom:0;
+      right:0;
+      padding:8px;
+    }
+    .upload_icon {
+       height:120px;
+      width:120px;
+    }
+    paper-progress.error {
+       --paper-progress-active-color: #e91e63;
+    }
+    
+   paper-button.blue {
+       color: #fff;
+      --paper-button-flat-focus-color: var(--paper-blue-500);
+    }
+    paper-button.blue:hover {
+      background: var(--paper-blue-500);
+    }
+    paper-button[raised].blue {
+      background: var(--paper-blue-500);
+    }
+  </style>
+  <template>
+      <div class="dropzone" hidden$="{{isFileSelected}}" id="dropzone" on-tap="onClick">
+       <iron-icon class="upload_icon" icon="file-upload"></iron-icon>
+       <h2 class="paper-font-display1">Drop files here or click to upload</h2>
+       <input type="file" id="fileInput" on-change="_onSelectFile" hidden>
+      </div>
+      <div hidden$="{{!isFileSelected}}">
+          <h2>Name:</h2><span>{{file.name}}</span>
+          <h2>Type:</h2><span>{{file.type}}</span>
+          <paper-toast id="statusToast" text="File uploaded successfully!"></paper-toast>
+          
+          <div class="buttonrow">
+              <paper-progress id="progress"  hidden$="{{!_isDisplayProgress(progress)}}" value="{{percentageUploaded}}"></paper-progress>
+              <paper-button id="cancelBtn" on-tap="onCancel">Cancel</paper-button>
+              <paper-button id="uploadBtn" on-tap="onUpload" class="blue" raised><iron-icon icon="file-upload"></iron-icon>Upload</paper-button>
+          </div>
+       </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'h-file-upload',
+
+    properties: {
+      url: {
+        type: String,
+        value: '/'
+      },
+      
+      file : {
+        type:Object,
+        value:function() {return null;},
+        observer:'_displayFile'
+      },
+      isFileSelected: {
+         type:Boolean,
+         computed: '_isFileSelected(file)'
+      },
+      percentageUploaded: {
+        type:Number,
+        computed:'_calculatePercentageUploaded(progress)'
+      },
+      progress: {
+        type:Object,
+        value: function() {return null;},
+        readOnly:true
+      }
+    },
+    listeners:{
+      drop:'_onDropFiles',
+      dragover:'_onDragOver',
+      dragleave:'_onDragLeave'
+    },
+    _isFileSelected: function(file) {
+      return this.file != null;
+    },
+    _onDropFiles: function(event) {
+      event.preventDefault();
+      var data = event.dataTransfer;
+      if (data.files.length <=0)
+        return;
+      this.file = event.dataTransfer.files[0];
+    },
+    _onDragOver: function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      console.log('dragover');
+      this.toggleClass('hover',true,this.$.dropzone);
+      return false;
+    },
+     _onDragLeave: function(event) {
+      this.toggleClass('hover',false,this.$.dropzone);
+      return false;
+    },
+    _displayFile : function(file) {
+        this.progress= null;
+        this.$.progress.toggleClass("error",false);
+        console.log(file);
+        if (file == null) {
+           this.progress = {};
+        }
+        
+        // read file and display some stats
+    },
+    _calculatePercentageUploaded : function(progress) {
+      if (!progress)
+        return 0;
+      return Math.floor(progress.loaded/progress.total*1000)/10;
+    },
+    _onHandleResponse : function(ajax) {
+        this.$.statusToast.text="Genotype successfully uploaded";
+        this.$.statusToast.show();
+    },
+    _progressChanged: function(event) {
+      this._setProgress(event.detail.value);
+    },
+    _isDisplayProgress: function(progress) {
+      return progress && progress.lengthComputable != null;
+    },
+    onClick: function(event){
+      var elem = this.$.fileInput;
+      event = Polymer.dom(event);
+      if(elem && document.createEvent && event.rootTarget != elem) { // sanity check
+        var evt = document.createEvent("MouseEvents");
+        evt.initEvent("click", true, false);
+        elem.dispatchEvent(evt);
+      }
+    },
+    onCancel: function() {
+      this.reset();
+    },
+    _handleError(request,error) {
+      this.$.progress.toggleClass("error",true);
+      this.$.statusToast.text="Error uploading file";
+      this.$.statusToast.show();
+    },
+    onUpload: function() {
+      if (!this.file)
+        return;
+      var ajax = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
+      ajax.addEventListener('progress-changed',this._progressChanged.bind(this));
+      ajax.completes.then(this._onHandleResponse.bind(this,ajax))
+      .catch(
+        this._handleError.bind(this, request)
+      );
+      var data = new FormData();
+      data.append("file", this.file);
+      var request = {url:this.url,method:'POST',body:data};
+      ajax.send(request);
+    },
+    _onSelectFile: function(e) {
+      this.file = e.target.files[0];
+    },
+    reset: function() {
+      this.file = null;
+      this.$.fileInput.value = "";
+    }
+    
+  });
+})();
+</script>

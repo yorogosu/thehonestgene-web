@@ -1,0 +1,112 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../anim-card/anim-card.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<dom-module id="h-genotype-upload">
+  <style>
+    :host {
+       @apply(--layout-flex);
+       @apply(--layout-horizontal);
+       @apply(--layout-center-center);
+    }
+    .container {
+        
+    }
+    .upload_icon {
+      width:120px;
+      height:120px;
+    }
+    
+    .card {
+      width:250px;
+      height:250px;
+      @apply(--layout-center-center);
+      @apply(--layout-vertical);
+    }
+    paper-material {
+      margin:20px;
+    }
+
+    @media (max-width: 600px) {
+      h1.paper-font-display1 {
+        font-size: 24px;
+      }
+      :host {
+         @apply(--layout-flex);
+         @apply(--layout-vertical);
+         @apply(--layout-center-center);
+      }
+      .container {
+       
+      }
+    }
+  </style>
+  <template>
+     <paper-material elevation="1" class="card" id="upload" on-tap="_onTap">
+       <iron-icon class="upload_icon" icon="file-upload"></iron-icon>
+       <h2 class="paper-font-display1">UPLOAD</h2>
+     </paper-material>
+      <paper-material elevation="1" class="card" id="cloud" on-tap="_onTap">
+         <iron-icon class="upload_icon" icon="cloud"></iron-icon>
+         <h2 class="paper-font-display1">CLOUD</h2>
+      </paper-material>
+
+  </template>
+</dom-module>
+<script>
+  (function() {
+    Polymer({
+      is: 'h-genotype-upload',
+      behaviors: [
+        Polymer.NeonSharedElementAnimatableBehavior
+      ],
+      properties: {
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [{
+                name: 'hero-animation',
+                id: 'hero',
+                toPage: this
+               
+              }, { }],
+              'exit': [{
+                name: 'hero-animation',
+                id: 'hero',
+                fromPage: this
+              }, 
+                {
+                 
+               }]
+            };
+          }
+        }
+      },
+      _onTap: function(event) {
+        var event = Polymer.dom(event);
+        var target = event.path[1];
+        if (true) {
+          // configure the page animation
+          this.sharedElements = {
+            'hero': target
+          };
+          var otherElem,direction,origin;
+          if (target.id == 'upload') {
+            direction = 'right';
+            otherElem = this.$.cloud;
+
+          } else {
+            direction = 'left';
+            otherElem = this.$.upload;
+
+          }
+          this.animationConfig['exit'][1].node = otherElem;
+          this.animationConfig['exit'][1].name = 'slide-'+direction+'-animation';
+          this.animationConfig['entry'][1].node = otherElem;
+          this.animationConfig['entry'][1].name = 'slide-from-'+direction+'-animation';
+          this.fire('card-click',target.id);
+        }
+      }
+    });
+  })();
+</script>
