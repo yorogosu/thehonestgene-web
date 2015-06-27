@@ -59,57 +59,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
       <paper-header-panel main mode="waterfall-tall">
-
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar">
-         
           <span class="flex"></span>
-
-          
-
           <!-- Application name -->
-          <div class="middle paper-font-display2 app-name">23andFree</div>
-
+          <div class="middle paper-font-display2 app-name">TheHonestGene</div>
           <paper-tabs attr-for-selected="route" selected="{{route}}" class="bottom self-end flex" noInk >
-            <paper-tab route="home">Step 1- Upload</paper-tab>
-            <paper-tab route="users">Step 2 - Imputation</paper-tab>
-            <paper-tab route="home">Step 3 - Ancestry</paper-tab>
-            <paper-tab route="home">Step 4 - Prediction</paper-tab>
+            <paper-tab route="genotype">Step 1- Genotype</paper-tab>
+            <paper-tab route="ancestry">Step 2 - Ancestry</paper-tab>
+            <paper-tab route="prediction">Step 3 - Prediction</paper-tab>
+            <paper-tab route="summary">Summary</paper-tab>
           </paper-tabs>
         </paper-toolbar>
-
         <!-- Main Content -->
         <div class="fit">
-          <iron-pages attr-for-selected="data-route" id="pages" selected="{{route}}">
-            <section data-route="home">
+          <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
+            <neon-animatable data-route="genotype">
               <genotype-page></genotype-page>
-            </section>
-
-            <section data-route="users">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">Users</h2>
-                <p>This is the users section</p>
-                <a href="/users/Rob">Rob</a>
-              </paper-material>
-            </section>
-
-            <section data-route="user-info">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">
-                User:<span>{{params.name}}</span>
-                </h2>
-                <div>This is <span>{{params.name}}</span>'s section</div>
-              </paper-material>
-            </section>
-
-            <section data-route="contact">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">Contact</h2>
-                <p>This is the contact section</p>
-              </paper-material>
-            </section>
-
-          </iron-pages>
+            </neon-animatable>
+        
+            <neon-animatable data-route="ancestry">
+              <ancestry-page>Ancestry</ancestry-page>
+            </neon-animatable>
+            <neon-animatable data-route="prediction">
+                <predication-page>Prediction</predication-page>
+            </neon-animatable>
+            <neon-animatable data-route="summary">
+                <predication-page>Summary</predication-page>
+            </neon-animatable>
+          </neon-animated-pages>
         </div>
       </paper-header-panel>
 

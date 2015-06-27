@@ -47,7 +47,7 @@
        <h2 class="paper-font-display1">UPLOAD</h2>
      </paper-material>
       <paper-material elevation="1" class="card" id="cloud" on-tap="_onTap">
-         <iron-icon class="upload_icon" icon="cloud"></iron-icon>
+         <iron-icon class="upload_icon" icon="cloud-upload"></iron-icon>
          <h2 class="paper-font-display1">CLOUD</h2>
       </paper-material>
 
@@ -69,14 +69,17 @@
                 id: 'hero',
                 toPage: this
                
-              }, { }],
+              }, { 
+                name: 'transform-animation'
+              }],
               'exit': [{
                 name: 'hero-animation',
                 id: 'hero',
-                fromPage: this
+                fromPage: this,
               }, 
                 {
-                 
+                  name: 'transform-animation',
+                  
                }]
             };
           }
@@ -92,18 +95,18 @@
           };
           var otherElem,direction,origin;
           if (target.id == 'upload') {
-            direction = 'right';
+            direction = '+100vw';
             otherElem = this.$.cloud;
 
           } else {
-            direction = 'left';
+            direction = '-100vw';
             otherElem = this.$.upload;
 
           }
           this.animationConfig['exit'][1].node = otherElem;
-          this.animationConfig['exit'][1].name = 'slide-'+direction+'-animation';
+          this.animationConfig['exit'][1].transformTo = 'translateX('+direction+')';
           this.animationConfig['entry'][1].node = otherElem;
-          this.animationConfig['entry'][1].name = 'slide-from-'+direction+'-animation';
+          this.animationConfig['entry'][1].transformFrom = 'translateX('+direction+')';
           this.fire('card-click',target.id);
         }
       }
