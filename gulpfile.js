@@ -22,6 +22,7 @@ var merge = require('merge-stream');
 var path = require('path');
 var fs = require('fs');
 var glob = require('glob');
+var historyApiFallback = require('connect-history-api-fallback');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -151,8 +152,7 @@ gulp.task('vulcanize', function () {
 
   return gulp.src('dist/elements/elements.vulcanized.html')
     .pipe($.vulcanize({
-      dest: DEST_DIR,
-      strip: true,
+      stripComments: true,
       inlineCss: true,
       inlineScripts: true
     }))
@@ -185,6 +185,7 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
   proxyOptions.route = '/api';
   browserSync({
     notify: false,
+    logPrefix: 'PSK',
     middleware: [proxy(proxyOptions)],
     snippetOptions: {
       rule: {
@@ -200,6 +201,7 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
     // https: true,
     server: {
       baseDir: ['.tmp', 'app'],
+      middleware: [ historyApiFallback() ],
       routes: {
         '/bower_components': 'bower_components'
       }
@@ -217,6 +219,7 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
 gulp.task('serve:dist', ['default'], function () {
   browserSync({
     notify: false,
+    logPrefix: 'PSK',
     snippetOptions: {
       rule: {
         match: '<span id="browser-sync-binding"></span>',
@@ -229,7 +232,8 @@ gulp.task('serve:dist', ['default'], function () {
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
     // https: true,
-    server: 'dist'
+    server: 'dist',
+    middleware: [ historyApiFallback() ]
   });
 });
 
@@ -241,11 +245,12 @@ gulp.task('default', ['clean'], function (cb) {
     ['jshint', 'images', 'fonts', 'html'],
     'vulcanize',
     cb);
+    // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
-try { require('web-component-tester').gulp.init(gulp); } catch (err) {}
+require('web-component-tester').gulp.init(gulp);
 
 // Load custom tasks from the `tasks` directory
 try { require('require-dir')('tasks'); } catch (err) {}
