@@ -52,52 +52,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-material>
     </div>
   </template>
-</dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'upload-page',
-
-    behaviors: [
-      Polymer.NeonSharedElementAnimatableBehavior
-    ],
-    properties: {
-      sharedElements: {
-        value: function() {
-          return {
-            'hero': this.$.header
-          };
-        }
-      },
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'upload-page',
+    
+        behaviors: [
+          Polymer.NeonSharedElementAnimatableBehavior
+        ],
+        properties: {
+          sharedElements: {
+            value: function() {
+              return {
+                'hero': this.$.header
+              };
+            }
+          },
           animationConfig: {
-        value: function() {
-          return {
-            'entry': [{
-              name: 'hero-animation',
-              id: 'hero',
-              toPage: this
-            },
-            {
-              name:'scale-up-animation',
-              node: this.$.dropzonecontainer
-            }],
-            'exit': [{
-              name: 'hero-animation',
-              id: 'hero',
-              fromPage: this
-            },
-            {
-              name:'scale-down-animation',
-              node:this.$.dropzonecontainer
-            }],
-          };
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  toPage: this
+                },
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.dropzonecontainer
+                }],
+                'exit': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  fromPage: this
+                },
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.dropzonecontainer
+                }],
+              };
+            }
+          }
+        },
+        _close: function() {
+          this.$.upload.reset();
+          this.fire('close-card');
         }
-      }
-    },
-    _close:function() {
-      this.$.upload.reset();
-      this.fire('close-card');
-    }
-  });
-})();
-</script>
+      });
+    })();
+  </script>
+</dom-module>
+

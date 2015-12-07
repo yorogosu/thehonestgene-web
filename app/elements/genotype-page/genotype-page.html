@@ -27,31 +27,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <imputation-page genotype-route="imputation" data="[[data]]"></imputation-page>
     </neon-animated-pages>
   </template>
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'genotype-page',
+    
+        properties: {
+          data: {
+            type: Object,
+            value: function() { return {};}
+          }
+        },
+        _onCardClick: function(event) {
+          var selPage = event.detail;
+          if (typeof selPage === 'object') {
+            selPage = 'list';
+          }
+          this.$.gpages.selected = selPage;
+        },
+        _computeActivePage: function(id) {
+          if (id === undefined) {
+            return 'list';
+          }
+          return 'imputation';
+        },
+      });
+    })();
+  </script>
 </dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'genotype-page',
 
-    properties: {
-      data: {
-        type: Object,
-        value: function() { return {};}
-      }
-    },
-    _onCardClick : function(event) {
-      var selPage = event.detail;
-      if (typeof selPage === 'object') {
-        selPage = 'list';
-      }
-      this.$.gpages.selected=selPage;
-    },
-    _computeActivePage: function(id) {
-      if (id === undefined) {
-        return 'list';
-      }
-      return 'imputation'
-    },
-  });
-})();
-</script>

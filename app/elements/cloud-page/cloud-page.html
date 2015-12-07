@@ -35,43 +35,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-toolbar>
     CLOUD UPLOAD
   </template>
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'cloud-page',
+    
+        behaviors: [
+          Polymer.NeonSharedElementAnimatableBehavior
+        ],
+        properties: {
+          sharedElements: {
+            value: function() {
+              return {
+                'hero': this.$.header
+              };
+            }
+          },
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  toPage: this
+                }],
+                'exit': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  fromPage: this
+                }],
+              };
+            }
+          }
+        },
+        _close: function() {
+          this.fire('close-card');
+        }
+      });
+    })();
+  </script>
 </dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'cloud-page',
 
-    behaviors: [
-      Polymer.NeonSharedElementAnimatableBehavior
-    ],
-    properties: {
-      sharedElements: {
-        value: function() {
-          return {
-            'hero': this.$.header
-          };
-        }
-      },
-      animationConfig: {
-        value: function() {
-          return {
-            'entry': [{
-              name: 'hero-animation',
-              id: 'hero',
-              toPage: this
-            }],
-            'exit': [{
-              name: 'hero-animation',
-              id: 'hero',
-              fromPage: this
-            }],
-          };
-        }
-      }
-    },
-    _close:function() {
-      this.fire('close-card');
-    }
-  });
-})();
-</script>

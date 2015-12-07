@@ -74,130 +74,130 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
        </div>
   </template>
-</dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'h-file-upload',
-
-    properties: {
-      url: {
-        type: String,
-        value: '/'
-      },
-
-      file : {
-        type:Object,
-        value:function() {return null;},
-        observer:'_displayFile'
-      },
-      isFileSelected: {
-         type:Boolean,
-         computed: '_isFileSelected(file)'
-      },
-      percentageUploaded: {
-        type:Number,
-        computed:'_calculatePercentageUploaded(progress)'
-      },
-      progress: {
-        type:Object,
-        value: function() {return null;},
-        readOnly:true
-      }
-    },
-    listeners:{
-      drop:'_onDropFiles',
-      dragover:'_onDragOver',
-      dragleave:'_onDragLeave'
-    },
-    _isFileSelected: function(file) {
-      return file !== null;
-    },
-    _onDropFiles: function(event) {
-      event.preventDefault();
-      var data = event.dataTransfer;
-      if (data.files.length <=0) {
-        return;
-      }
-      this.file = event.dataTransfer.files[0];
-    },
-    _onDragOver: function(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      console.log('dragover');
-      this.toggleClass('hover',true,this.$.dropzone);
-      return false;
-    },
-     _onDragLeave: function() {
-      this.toggleClass('hover',false,this.$.dropzone);
-      return false;
-    },
-    _displayFile : function(file) {
-        this.progress= null;
-        this.$.progress.toggleClass('error',false);
-        if (file === null) {
-           this.progress = {};
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'h-file-upload',
+    
+        properties: {
+          url: {
+            type: String,
+            value: '/'
+          },
+          file: {
+            type: Object,
+            value: function() {return null;},
+            observer: '_displayFile'
+          },
+          isFileSelected: {
+            type: Boolean,
+            computed: '_isFileSelected(file)'
+          },
+          percentageUploaded: {
+            type: Number,
+            computed: '_calculatePercentageUploaded(progress)'
+          },
+          progress: {
+            type: Object,
+            value: function() {return null;},
+            readOnly: true
+          }
+        },
+        listeners: {
+          drop: '_onDropFiles',
+          dragover: '_onDragOver',
+          dragleave: '_onDragLeave'
+        },
+        _isFileSelected: function(file) {
+          return file !== null;
+        },
+        _onDropFiles: function(event) {
+          event.preventDefault();
+          var data = event.dataTransfer;
+          if (data.files.length <= 0) {
+            return;
+          }
+          this.file = event.dataTransfer.files[0];
+        },
+        _onDragOver: function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+          this.toggleClass('hover',true,this.$.dropzone);
+          return false;
+        },
+        _onDragLeave: function() {
+          this.toggleClass('hover',false,this.$.dropzone);
+          return false;
+        },
+        _displayFile: function(file) {
+          this._setProgress(null);
+          this.$.progress.toggleClass('error',false);
+          if (file === null) {
+            this._setProgress({});
+          }
+          // read file and display some stats
+        },
+        _calculatePercentageUploaded: function(progress) {
+          if (!progress) {
+            return 0;
+          }
+          return Math.floor(progress.loaded / progress.total * 1000) / 10;
+        },
+        _onHandleResponse: function(ajax) {
+          this.$.statusToast.text = 'Genotype successfully uploaded';
+          this.$.statusToast.show();
+          this.fire('genotype-uploaded',{id: ajax.response});
+        },
+        _progressChanged: function(event) {
+          this._setProgress(event.detail.value);
+        },
+        _isDisplayProgress: function(progress) {
+          return progress && progress.lengthComputable !== null;
+        },
+        onClick: function(event) {
+          var elem = this.$.fileInput;
+          event = Polymer.dom(event);
+          if (elem && document.createEvent && event.rootTarget !== elem) { // sanity check
+            var evt = document.createEvent('MouseEvents');
+            evt.initEvent('click', true, false);
+            elem.dispatchEvent(evt);
+          }
+        },
+        onCancel: function() {
+          this.reset();
+        },
+        _handleError: function() {
+          this.$.progress.toggleClass('error',true);
+          this.$.statusToast.text = 'Error uploading file';
+          this.$.statusToast.show();
+        },
+        onUpload: function() {
+          if (!this.file) {
+            return;
+          }
+          var ajax = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
+          ajax.addEventListener('progress-changed',this._progressChanged.bind(this));
+          var data = new FormData();
+          data.append('file', this.file);
+          var request = {url: this.url,method: 'POST',body: data};
+          ajax.completes.then(this._onHandleResponse.bind(this,ajax))
+          .catch(
+            this._handleError.bind(this, request)
+          );
+          ajax.send(request);
+        },
+        _onSelectFile: function(e) {
+          this.file = e.target.files[0];
+        },
+        reset: function() {
+          this.file = null;
+          this.$.fileInput.value = '';
         }
+    
+      });
+    })();
+  </script>
+</dom-module>
 
-        // read file and display some stats
-    },
-    _calculatePercentageUploaded : function(progress) {
-      if (!progress) {
-        return 0;
-      }
-      return Math.floor(progress.loaded/progress.total*1000)/10;
-    },
-    _onHandleResponse : function(ajax) {
-        this.$.statusToast.text='Genotype successfully uploaded';
-        this.$.statusToast.show();
-        this.fire('genotype-uploaded',{id:ajax.response});
-    },
-    _progressChanged: function(event) {
-      this._setProgress(event.detail.value);
-    },
-    _isDisplayProgress: function(progress) {
-      return progress && progress.lengthComputable !== null;
-    },
-    onClick: function(event){
-      var elem = this.$.fileInput;
-      event = Polymer.dom(event);
-      if(elem && document.createEvent && event.rootTarget !== elem) { // sanity check
-        var evt = document.createEvent('MouseEvents');
-        evt.initEvent('click', true, false);
-        elem.dispatchEvent(evt);
-      }
-    },
-    onCancel: function() {
-      this.reset();
-    },
-    _handleError() {
-      this.$.progress.toggleClass('error',true);
-      this.$.statusToast.text='Error uploading file';
-      this.$.statusToast.show();
-    },
-    onUpload: function() {
-      if (!this.file) {
-        return;
-      }
-      var ajax = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
-      ajax.addEventListener('progress-changed',this._progressChanged.bind(this));
-      var data = new FormData();
-      data.append('file', this.file);
-      var request = {url:this.url,method:'POST',body:data};
-      ajax.completes.then(this._onHandleResponse.bind(this,ajax))
-      .catch(
-        this._handleError.bind(this, request)
-      );
-      ajax.send(request);
-    },
-    _onSelectFile: function(e) {
-      this.file = e.target.files[0];
-    },
-    reset: function() {
-      this.file = null;
-      this.$.fileInput.value = '';
-    }
-
-  });
-})();
-</script>

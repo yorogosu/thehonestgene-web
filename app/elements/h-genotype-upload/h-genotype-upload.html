@@ -50,66 +50,67 @@
          <iron-icon class="upload_icon" icon="cloud-upload"></iron-icon>
          <h2 class="paper-font-display1">CLOUD</h2>
       </paper-material>
-
   </template>
-</dom-module>
-<script>
-  (function() {
-    Polymer({
-      is: 'h-genotype-upload',
-      behaviors: [
-        Polymer.NeonSharedElementAnimatableBehavior
-      ],
-      properties: {
-        animationConfig: {
-          value: function() {
-            return {
-              'entry': [{
-                name: 'hero-animation',
-                id: 'hero',
-                toPage: this
-
-              }, {
-                name: 'transform-animation'
-              }],
-              'exit': [{
-                name: 'hero-animation',
-                id: 'hero',
-                fromPage: this,
-              },
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'h-genotype-upload',
+        behaviors: [
+          Polymer.NeonSharedElementAnimatableBehavior
+        ],
+        properties: {
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  toPage: this
+  
+                }, {
+                  name: 'transform-animation'
+                }],
+                'exit': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  fromPage: this,
+                },
                 {
                   name: 'transform-animation',
-
-               }]
+                }]
+              };
+            }
+          }
+        },
+        _onTap: function(event) {
+          event = Polymer.dom(event);
+          var target = event.path[1];
+          if (true) {
+            // configure the page animation
+            this.sharedElements = {
+              'hero': target
             };
+            var otherElem;
+            var direction;
+            if (target.id === 'upload') {
+              direction = '+100vw';
+              otherElem = this.$.cloud;
+  
+            } else {
+              direction = '-100vw';
+              otherElem = this.$.upload;
+  
+            }
+            this.animationConfig.exit[1].node = otherElem;
+            this.animationConfig.exit[1].transformTo = 'translateX(' + direction + ')';
+            this.animationConfig.entry[1].node = otherElem;
+            this.animationConfig.entry[1].transformFrom = 'translateX(' + direction + ')';
+            this.fire('card-click',target.id);
           }
         }
-      },
-      _onTap: function(event) {
-        event = Polymer.dom(event);
-        var target = event.path[1];
-        if (true) {
-          // configure the page animation
-          this.sharedElements = {
-            'hero': target
-          };
-          var otherElem,direction;
-          if (target.id === 'upload') {
-            direction = '+100vw';
-            otherElem = this.$.cloud;
-
-          } else {
-            direction = '-100vw';
-            otherElem = this.$.upload;
-
-          }
-          this.animationConfig.exit[1].node = otherElem;
-          this.animationConfig.exit[1].transformTo = 'translateX('+direction+')';
-          this.animationConfig.entry[1].node = otherElem;
-          this.animationConfig.entry[1].transformFrom = 'translateX('+direction+')';
-          this.fire('card-click',target.id);
-        }
-      }
-    });
-  })();
-</script>
+      });
+    })();
+  </script>
+</dom-module>
