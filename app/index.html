@@ -1,3 +1,4 @@
+<!doctype html>
 <!--
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
@@ -8,7 +9,6 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<!doctype html>
 <html lang="">
 
 <head>
@@ -16,8 +16,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="description" content="23andFree - Find out about your future">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Polymer Starter Kit" />
-  <title>Polymer Starter Kit</title>
-  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <title>TheHonestGene</title>
+  <!-- Place favicon.ico in the `app/` directory -->
 
   <!-- Chrome for Android theme color -->
   <meta name="theme-color" content="#03A9F4">
@@ -50,9 +50,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
 
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.0.3/sockjs.min.js"></script>-->
+  <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
   <!-- will be replaced with elements/elements.vulcanized.html -->
   <link rel="import" href="elements/elements.html">
   <!-- endreplace-->
+
+  <!-- For shared styles, shared-styles.html import in elements.html -->
+  <style is="custom-style" include="shared-styles"></style>
+
 </head>
 
 <body unresolved class="fullbleed layout vertical">
@@ -75,9 +83,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="fit">
           <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
             <neon-animatable data-route="genotype">
-              <genotype-page></genotype-page>
+              <genotype-page on-genotype-uploaded="onGenotypeUploaded" data="[[data]]"></genotype-page>
             </neon-animatable>
-        
+
             <neon-animatable data-route="ancestry">
               <ancestry-page>Ancestry</ancestry-page>
             </neon-animatable>
@@ -90,8 +98,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </neon-animated-pages>
         </div>
       </paper-header-panel>
-
-<!--
+    <!-- Uncomment next block to enable Service Worker support (1/2) -->
+    <!--
     <paper-toast id="caching-complete"
                  duration="6000"
                  text="Caching complete! This app will work offline.">
@@ -101,16 +109,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                           clients-claim
                           skip-waiting
                           on-service-worker-installed="displayInstalledToast">
-      <platinum-sw-cache default-cache-strategy="networkFirst"
-                         precache-file="precache.json">
+      <platinum-sw-cache default-cache-strategy="fastest"
+                         cache-config-file="cache-config.json">
       </platinum-sw-cache>
     </platinum-sw-register>
--->
+    -->
+
   </template>
 
   <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>
-
   <!-- endbuild-->
 </body>
 

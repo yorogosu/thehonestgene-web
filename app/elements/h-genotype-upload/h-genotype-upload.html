@@ -10,13 +10,13 @@
        @apply(--layout-center-center);
     }
     .container {
-        
+
     }
     .upload_icon {
       width:120px;
       height:120px;
     }
-    
+
     .card {
       width:250px;
       height:250px;
@@ -37,7 +37,7 @@
          @apply(--layout-center-center);
       }
       .container {
-       
+
       }
     }
   </style>
@@ -68,33 +68,33 @@
                 name: 'hero-animation',
                 id: 'hero',
                 toPage: this
-               
-              }, { 
+
+              }, {
                 name: 'transform-animation'
               }],
               'exit': [{
                 name: 'hero-animation',
                 id: 'hero',
                 fromPage: this,
-              }, 
+              },
                 {
                   name: 'transform-animation',
-                  
+
                }]
             };
           }
         }
       },
       _onTap: function(event) {
-        var event = Polymer.dom(event);
+        event = Polymer.dom(event);
         var target = event.path[1];
         if (true) {
           // configure the page animation
           this.sharedElements = {
             'hero': target
           };
-          var otherElem,direction,origin;
-          if (target.id == 'upload') {
+          var otherElem,direction;
+          if (target.id === 'upload') {
             direction = '+100vw';
             otherElem = this.$.cloud;
 
@@ -103,10 +103,10 @@
             otherElem = this.$.upload;
 
           }
-          this.animationConfig['exit'][1].node = otherElem;
-          this.animationConfig['exit'][1].transformTo = 'translateX('+direction+')';
-          this.animationConfig['entry'][1].node = otherElem;
-          this.animationConfig['entry'][1].transformFrom = 'translateX('+direction+')';
+          this.animationConfig.exit[1].node = otherElem;
+          this.animationConfig.exit[1].transformTo = 'translateX('+direction+')';
+          this.animationConfig.entry[1].node = otherElem;
+          this.animationConfig.entry[1].transformFrom = 'translateX('+direction+')';
           this.fire('card-click',target.id);
         }
       }

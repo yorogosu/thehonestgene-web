@@ -13,23 +13,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="h-file-upload">
   <style>
     :host {
-      
+
     }
     .dropzone {
-      
+
         cursor:pointer;
         @apply(--layout-vertical);
         @apply(--layout-center-center);
-        
+
     }
     .hover {
       border: 1px dashed DarkGray;
     }
     #uploadBtn  {
-      
+
     }
     #cancelBtn {
-      
+
     }
     .buttonrow {
       position:absolute;
@@ -44,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-progress.error {
        --paper-progress-active-color: #e91e63;
     }
-    
+
    paper-button.blue {
        color: #fff;
       --paper-button-flat-focus-color: var(--paper-blue-500);
@@ -66,7 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <h2>Name:</h2><span>{{file.name}}</span>
           <h2>Type:</h2><span>{{file.type}}</span>
           <paper-toast id="statusToast" text="File uploaded successfully!"></paper-toast>
-          
+
           <div class="buttonrow">
               <paper-progress id="progress"  hidden$="{{!_isDisplayProgress(progress)}}" value="{{percentageUploaded}}"></paper-progress>
               <paper-button id="cancelBtn" on-tap="onCancel">Cancel</paper-button>
@@ -85,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: '/'
       },
-      
+
       file : {
         type:Object,
         value:function() {return null;},
@@ -111,13 +111,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       dragleave:'_onDragLeave'
     },
     _isFileSelected: function(file) {
-      return this.file != null;
+      return file !== null;
     },
     _onDropFiles: function(event) {
       event.preventDefault();
       var data = event.dataTransfer;
-      if (data.files.length <=0)
+      if (data.files.length <=0) {
         return;
+      }
       this.file = event.dataTransfer.files[0];
     },
     _onDragOver: function(event) {
@@ -127,64 +128,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.toggleClass('hover',true,this.$.dropzone);
       return false;
     },
-     _onDragLeave: function(event) {
+     _onDragLeave: function() {
       this.toggleClass('hover',false,this.$.dropzone);
       return false;
     },
     _displayFile : function(file) {
         this.progress= null;
-        this.$.progress.toggleClass("error",false);
-        console.log(file);
-        if (file == null) {
+        this.$.progress.toggleClass('error',false);
+        if (file === null) {
            this.progress = {};
         }
-        
+
         // read file and display some stats
     },
     _calculatePercentageUploaded : function(progress) {
-      if (!progress)
+      if (!progress) {
         return 0;
+      }
       return Math.floor(progress.loaded/progress.total*1000)/10;
     },
     _onHandleResponse : function(ajax) {
-        this.$.statusToast.text="Genotype successfully uploaded";
+        this.$.statusToast.text='Genotype successfully uploaded';
         this.$.statusToast.show();
+        this.fire('genotype-uploaded',{id:ajax.response});
     },
     _progressChanged: function(event) {
       this._setProgress(event.detail.value);
     },
     _isDisplayProgress: function(progress) {
-      return progress && progress.lengthComputable != null;
+      return progress && progress.lengthComputable !== null;
     },
     onClick: function(event){
       var elem = this.$.fileInput;
       event = Polymer.dom(event);
-      if(elem && document.createEvent && event.rootTarget != elem) { // sanity check
-        var evt = document.createEvent("MouseEvents");
-        evt.initEvent("click", true, false);
+      if(elem && document.createEvent && event.rootTarget !== elem) { // sanity check
+        var evt = document.createEvent('MouseEvents');
+        evt.initEvent('click', true, false);
         elem.dispatchEvent(evt);
       }
     },
     onCancel: function() {
       this.reset();
     },
-    _handleError(request,error) {
-      this.$.progress.toggleClass("error",true);
-      this.$.statusToast.text="Error uploading file";
+    _handleError() {
+      this.$.progress.toggleClass('error',true);
+      this.$.statusToast.text='Error uploading file';
       this.$.statusToast.show();
     },
     onUpload: function() {
-      if (!this.file)
+      if (!this.file) {
         return;
+      }
       var ajax = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
       ajax.addEventListener('progress-changed',this._progressChanged.bind(this));
+      var data = new FormData();
+      data.append('file', this.file);
+      var request = {url:this.url,method:'POST',body:data};
       ajax.completes.then(this._onHandleResponse.bind(this,ajax))
       .catch(
         this._handleError.bind(this, request)
       );
-      var data = new FormData();
-      data.append("file", this.file);
-      var request = {url:this.url,method:'POST',body:data};
       ajax.send(request);
     },
     _onSelectFile: function(e) {
@@ -192,9 +195,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
     reset: function() {
       this.file = null;
-      this.$.fileInput.value = "";
+      this.$.fileInput.value = '';
     }
-    
+
   });
 })();
 </script>

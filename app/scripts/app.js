@@ -14,15 +14,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
+  app.data = {'stomp':{'connected':false,'subscription':null},'imputation':{'running':false},'ancestry':{'running':false},'prediction':{'running':false}};
+  // setup websocket
+  var client;
+
 
   app.displayInstalledToast = function() {
-    document.querySelector('#caching-complete').show();
+    // Check to make sure caching is actually enabled—it won't be in the dev environment.
+    if (!document.querySelector('platinum-sw-cache').disabled) {
+      document.querySelector('#caching-complete').show();
+    }
   };
 
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Our app is ready to rock!');
+    //this._connectToStomp();
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -35,9 +43,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // The appName is moved to top and shrunk on condensing. The bottom sub title
   // is shrunk to nothing on condensing.
   addEventListener('paper-header-transform', function(e) {
-    var appName = document.querySelector('.app-name');
-    var middleContainer = document.querySelector('.middle-container');
-    var bottomContainer = document.querySelector('.bottom-container');
+    var appName = document.querySelector('#mainToolbar .app-name');
+    var middleContainer = document.querySelector('#mainToolbar .middle-container');
+    var bottomContainer = document.querySelector('#mainToolbar .bottom-container');
     var detail = e.detail;
     var heightDiff = detail.height - detail.condensedHeight;
     var yRatio = Math.min(1, detail.y / heightDiff);
@@ -61,6 +69,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     if (drawerPanel.narrow) {
       drawerPanel.closeDrawer();
     }
+  };
+  app.onGenotypeUploaded = function(e) {
+    this.set('data.id',e.detail.id);
+    this._connectToStomp();
+  };
+  app._connectToStomp = function() {
+    if (!this.data.stomp.connected) {
+      var ws = new SockJS('http://127.0.0.1:15674/stomp')
+      client = Stomp.over(ws);
+      client.heartbeat.outgoing = 0;
+      client.heartbeat.incoming = 0;
+      client.connect('guest', 'guest', app._onConnectStomp, app._onErrorStomp, '/');
+    }
+  };
+  app._onErrorStomp = function(error) {
+    console.log('Error connecting to STOMP backend: '+ error.headers.message);
+  };
+  app._onConnectStomp = function() {
+
+   // app.data.stomp.connected = true;
+    app.data.stomp.subscription = client.subscribe('/queue/updates_'+app.data.id, app._onHandleStompMessage, { id: app.data.id });
+  };
+  app._onHandleStompMessage = function(message) {
+    console.log(message);
+  };
+
+  // Scroll page to top and expand header
+  app.scrollPageToTop = function() {
+    document.getElementById('mainContainer').scrollTop = 0;
   };
 
 })(document);

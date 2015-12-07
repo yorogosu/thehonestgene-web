@@ -17,19 +17,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // More info: https://visionmedia.github.io/page.js/
     page('/', function () {
       app.route = 'genotype';
+      app.scrollPageToTop();
     });
 
     page('/imputation', function () {
       app.route = 'imputation';
+      app.scrollPageToTop();
     });
 
     page('/ancestry', function (data) {
       app.route = 'ancestry';
       app.params = data.params;
+      app.scrollPageToTop();
     });
 
     page('/prediction', function () {
       app.route = 'prediction';
+      app.scrollPageToTop();
     });
 
     // add #! before urls

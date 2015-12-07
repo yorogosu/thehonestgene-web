@@ -20,10 +20,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <neon-animated-pages selected="list" id="gpages" attr-for-selected="genotype-route"  on-close-card="_onCardClick">
+    <neon-animated-pages selected="[[_computeActivePage(data.id)]]" id="gpages" attr-for-selected="genotype-route"  on-close-card="_onCardClick">
       <h-genotype-upload genotype-route="list" on-card-click="_onCardClick"></h-genotype-upload>
       <upload-page genotype-route="upload"></upload-page>
       <cloud-page genotype-route="cloud"></cloud-page>
+      <imputation-page genotype-route="imputation" data="[[data]]"></imputation-page>
     </neon-animated-pages>
   </template>
 </dom-module>
@@ -33,18 +34,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'genotype-page',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+      data: {
+        type: Object,
+        value: function() { return {};}
       }
     },
     _onCardClick : function(event) {
       var selPage = event.detail;
-      if (typeof selPage === 'object')
+      if (typeof selPage === 'object') {
         selPage = 'list';
+      }
       this.$.gpages.selected=selPage;
-    }
+    },
+    _computeActivePage: function(id) {
+      if (id === undefined) {
+        return 'list';
+      }
+      return 'imputation'
+    },
   });
 })();
 </script>

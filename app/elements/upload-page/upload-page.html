@@ -14,9 +14,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       @apply(--layout-vertical);
-      
+
     }
-    
+
         .header h1 {
       display:inline-block;
     }
@@ -34,7 +34,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     width:700px;
     background-color: #FFFFFF;
   }
- 
+
   .container {
      @apply(--layout-vertical);
      @apply(--layout-flex);
@@ -57,7 +57,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 (function() {
   Polymer({
     is: 'upload-page',
-    
+
     behaviors: [
       Polymer.NeonSharedElementAnimatableBehavior
     ],
@@ -66,7 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: function() {
           return {
             'hero': this.$.header
-          }
+          };
         }
       },
           animationConfig: {
