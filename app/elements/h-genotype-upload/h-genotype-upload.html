@@ -85,8 +85,7 @@
           }
         },
         _onTap: function(event) {
-          event = Polymer.dom(event);
-          var target = event.path[1];
+          var target = event.currentTarget;
           if (true) {
             // configure the page animation
             this.sharedElements = {

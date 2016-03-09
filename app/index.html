@@ -9,7 +9,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<html lang="">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
@@ -54,9 +54,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="https://api.23andme.com/res/js/ttam-0.3.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-  <!-- will be replaced with elements/elements.vulcanized.html -->
+  <!-- Because this project uses vulcanize this should be your only html import
+       in this file. All other imports should go in elements.html -->
   <link rel="import" href="elements/elements.html">
-  <!-- endreplace-->
 
   <!-- For shared styles, shared-styles.html import in elements.html -->
   <style is="custom-style" include="shared-styles"></style>
@@ -64,7 +64,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 
 <body unresolved class="fullbleed layout vertical">
+  <!-- build:remove -->
   <span id="browser-sync-binding"></span>
+  <!-- endbuild -->
   <template is="dom-bind" id="app">
       <paper-header-panel main mode="waterfall-tall">
         <!-- Main Toolbar -->
@@ -72,28 +74,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <span class="flex"></span>
           <!-- Application name -->
           <div class="middle paper-font-display2 app-name">TheHonestGene</div>
-          <paper-tabs attr-for-selected="route" selected="{{route}}" class="bottom self-end flex" noInk >
+          <paper-tabs attr-for-selected="route" selected="{{route}}" class="bottom wizard" noInk >
             <paper-tab route="genotype">
-              <a href$="/{{data.id}}" class="horizontal center-center layout links">Step 1- Genotype</a>
+              <a href$="{{baseUrl}}{{data.id}}" class="horizontal center-center layout links">Step 1- Genotype</a>
             </paper-tab>
             <paper-tab route="ancestry">
-              <a href$="/ancestry/{{data.id}}" class="horizontal center-center layout links">Step 2 - Ancestry</a>
+              <a href$="{{baseUrl}}ancestry/{{data.id}}" class="horizontal center-center layout links">Step 2 - Ancestry</a>
             </paper-tab>
             <paper-tab route="prediction">
-              <a href$="/prediction/{{data.id}}" class="horizontal center-center layout links">Step 3 - Prediction</a>
+              <a href$="{{baseUrl}}prediction/{{data.id}}" class="horizontal center-center layout links">Step 3 - Prediction</a>
             </paper-tab>
             <paper-tab route="summary">
-              <a href$="/summary/{{data.id}}" class="horizontal center-center layout links">Summary</a>
+              <a href$="{{baseUrl}}summary/{{data.id}}" class="horizontal center-center layout links">Summary</a>
             </paper-tab>
           </paper-tabs>
         </paper-toolbar>
         <!-- Main Content -->
-        <div class="fit">
+        <div class="content">
           <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
             <neon-animatable data-route="genotype">
               <genotype-page on-genotype-uploaded="onGenotypeUploaded" data="[[data]]"></genotype-page>
             </neon-animatable>
-
             <neon-animatable data-route="ancestry">
               <ancestry-page>Ancestry</ancestry-page>
             </neon-animatable>
@@ -120,6 +121,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <platinum-sw-register auto-register
                           clients-claim
                           skip-waiting
+                          base-uri="bower_components/platinum-sw/bootstrap"
                           on-service-worker-installed="displayInstalledToast">
       <platinum-sw-cache default-cache-strategy="fastest"
                          cache-config-file="cache-config.json">
