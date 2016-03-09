@@ -21,19 +21,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display:inline-block;
     }
     .big {
-    height: 32px;
-    width: 32px;
-  }
-  paper-toolbar {
-    --paper-toolbar-background:#FBC02D;
-  }
+      height: 32px;
+      width: 32px;
+    }
+   
+    paper-toolbar {
+      --paper-toolbar-background:#FBC02D;
+    }
   </style>
   <template>
     <paper-toolbar id="header">
       <iron-icon class="big"  icon="arrow-back" on-tap="_close"></iron-icon>
       <h1>CLOUD Upload</h1>
-    <paper-toolbar>
-    CLOUD UPLOAD
+    </paper-toolbar>
+    <hg-cloud-23andme class="provider"></hg-cloud-23andme>
   </template>
   <script>
     (function() {
@@ -60,15 +61,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   name: 'hero-animation',
                   id: 'hero',
                   toPage: this
+                },{
+                  name: 'fade-in-animation',
+                  timing: {delay: 100}
                 }],
                 'exit': [{
                   name: 'hero-animation',
                   id: 'hero',
-                  fromPage: this
+                  fromPage: this,
+                },{
+                  name: 'fade-out-animation'
                 }],
               };
             }
           }
+        },
+        _getCards: function() {
+        },
+        ready: function() {
+          var cards = this.$$('.provider');
+          this.animationConfig.exit[1].node = cards;
+          this.animationConfig.entry[1].node = cards;
         },
         _close: function() {
           this.fire('close-card');

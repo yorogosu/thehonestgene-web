@@ -1,0 +1,133 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="hg-cloud-23andme">
+  <template>
+    <style>
+      :host {
+        @apply(--layout-around-justified);
+        @apply(--layout-center);
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        position:absolute;
+        top:64px;
+        bottom:0;
+        left:0;
+        right:0;
+      }
+      .card {
+        width:250px;
+        height:250px;
+        @apply(--layout-center-center);
+        @apply(--layout-vertical);
+      }
+      paper-spinner {
+        position:absolute;
+        left: calc(50% - 14px);
+      }
+    </style>
+    <paper-spinner active="{{loading}}"></paper-spinner>
+    <iron-ajax id = "tokenService" url="/api/cloud/"
+      params='{"provider":"23andme"}' handle-as="json" method="post"
+      on-response="handleTokenResponse" loading="{{loading}}" debounce-duration="300">
+    </iron-ajax>
+    <iron-ajax id = "profileService" url="/api/cloud/" 
+      params='{"provider":"23andme","action":"profiles"}' handle-as="json"
+      method="get" headers="{{authHeaders}}"
+      last-response="{{profiles}}" loading="{{loading}}" debounce-duration="300">
+    </iron-ajax>
+    <iron-ajax id = "genotypeService" url="/api/cloud/" 
+      params="{{_getParamsForGenotype(selectedGenotype)}}" handle-as="json"
+      method="get" headers="{{authHeaders}}"
+      on-response="_handleGenotypeUploadResponse" loading="{{loading}}" debounce-duration="300">
+    </iron-ajax>
+    <paper-material elevation="1" class="card" id="23andme" on-tap="_onTap" hidden$="{{profiles}}">
+      <img src="https://api.23andme.com/res/img/logos/icn_logo.b46b629c0c0a.png" />
+    </paper-material>
+    <template is="dom-repeat" items="{{profiles.profiles}}">
+      <paper-material elavation="1" class="card" >
+        <h2>{{item.id}}</h2>
+        <button on-click="_selectGenotype">Select</button>
+      </paper-material>
+    </template>
+    <paper-toast id="statusToast" text="File uploaded successfully!"></paper-toast>
+  </template>
+  <script>
+  (function() {
+    'use strict';
+    
+    var OAUTHURL = 'https://api.23andme.com/authorize/?redirect_uri=http://localhost:5000/receive_code/&response_type=code&client_id=ca3fe941649f96541961f797e5fb0beb&scope=genomes basic names'; // jscs:ignore maximumLineLength 
+    
+    Polymer({
+      is: 'hg-cloud-23andme',
+
+      properties: {
+        oauthFinished: {
+          computed: '_hasAuthCredentials(authHeaders)'
+        }
+      },
+      loading: false,
+      _selectGenotype: function(e) {
+        var model = e.model;
+        this.selectedGenotype = model.item.id;
+        this.$.genotypeService.generateRequest();
+      },
+      _getParamsForGenotype: function(selectedGenotype) {
+        return {provider: '23andme', action: 'upload', id: selectedGenotype};
+      },
+      _onTap: function() {
+        var win = window.open(OAUTHURL, 'windowname1', 'width=800, height=600'); 
+        var REDIRECT = 'http://localhost:5000/receive_code/';
+        var pollTimer = window.setInterval(function() { 
+          try {
+            if (win.document.URL.indexOf(REDIRECT) !== -1) {
+              window.clearInterval(pollTimer);
+              var url = win.document.URL;
+              var code = this._gup(url, 'code');
+              win.close();
+              this._retrieveToken(code);
+            }
+          } catch (e) {
+          }
+        }.bind(this), 100);
+      },
+      _retrieveToken: function(code) {
+        console.log(code);
+        this.$.tokenService.headers = {'CODE': code};
+        this.$.tokenService.generateRequest();
+      },
+      _hasAuthCredentials: function(credentials) {
+        return (credentials !== null);
+      },
+      _handleGenotypeUploadResponse: function(e) {
+        this.$.statusToast.text = 'Genotype from 23andMe successfully uploaded';
+        this.$.statusToast.show();
+        /*jshint camelcase: false */
+        // jscs:disable maximumLineLength, requireCamelCaseOrUpperCaseIdentifiers
+        this.fire('genotype-uploaded',{id: e.detail.response.genotype_id});
+        // jscs:enable
+      },
+      handleTokenResponse: function(e) {
+        /*jshint camelcase: false */
+        // jscs:disable maximumLineLength, requireCamelCaseOrUpperCaseIdentifiers
+        this.authHeaders = {'ACCESS-TOKEN': e.detail.response.access_token,'REFRESH-TOKEN': e.detail.response.refresh_token}; 
+        // jscs:enable
+        this._retrieveProfiles();
+      },
+      _retrieveProfiles: function() {
+        this.$.profileService.generateRequest();
+      },
+      _gup: function(url, name) {
+        name = name.replace(/[[]/,'\[').replace(/[]]/,'\]');
+        var regexS = '[\?&]' + name + '=([^&#]*)';
+        var regex = new RegExp(regexS);
+        var results = regex.exec(url);
+        if (results === null) {
+          return '';
+        } else {
+          return results[1];
+        }
+      }
+    });
+  })();
+  </script>
+</dom-module>

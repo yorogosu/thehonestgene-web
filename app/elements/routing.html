@@ -36,23 +36,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('*', scrollToTop, closeDrawer, function(ctx, next) {
       next();
     });
-
+    
     page('/', function() {
       app.route = 'genotype';
     });
 
-    page('/ancestry', function(data) {
+    page('/genotype/:id?', function(ctx) {
+      app.route = 'genotype';
+      // TODO check if there is an id and see if it still valid. 
+      app.set('data.id',ctx.params.id);
+      if (app.data.id !== null) {
+        app.connectToStomp();
+      }
+      ctx.state.id = app.data.id;
+    });
+
+    page('/ancestry/:id?', function(data) {
+      // TODO check if ancestry step 
       app.route = 'ancestry';
       app.params = data.params;
     });
 
-    page('/prediction', function() {
+    page('/prediction/:id?', function() {
+      // TODO check if prediction step
       app.route = 'prediction';
+    });
+    
+    page('/summary/:id?', function() {
+      // TODO check if prediction step
+      app.route = 'summary';
     });
 
     // 404
     page('*', function() {
-      app.$.toast.text = 'Can\'t find: ' + window.location.href  + '. Redirected you to Home Page';
+      app.$.toast.text = 'Can\'t find: ' + window.location.href + '. Redirected you to Home Page';
       app.$.toast.show();
       page.redirect(app.baseUrl);
     });
@@ -61,6 +78,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page({
       hashbang: true
     });
-
   });
 </script>

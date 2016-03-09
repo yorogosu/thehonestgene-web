@@ -50,8 +50,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
 
-  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.0.3/sockjs.min.js"></script>-->
-  <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.0.3/sockjs.min.js"></script>
+  <script src="https://api.23andme.com/res/js/ttam-0.3.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
   <!-- will be replaced with elements/elements.vulcanized.html -->
@@ -73,10 +73,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Application name -->
           <div class="middle paper-font-display2 app-name">TheHonestGene</div>
           <paper-tabs attr-for-selected="route" selected="{{route}}" class="bottom self-end flex" noInk >
-            <paper-tab route="genotype">Step 1- Genotype</paper-tab>
-            <paper-tab route="ancestry">Step 2 - Ancestry</paper-tab>
-            <paper-tab route="prediction">Step 3 - Prediction</paper-tab>
-            <paper-tab route="summary">Summary</paper-tab>
+            <paper-tab route="genotype">
+              <a href$="/{{data.id}}" class="horizontal center-center layout links">Step 1- Genotype</a>
+            </paper-tab>
+            <paper-tab route="ancestry">
+              <a href$="/ancestry/{{data.id}}" class="horizontal center-center layout links">Step 2 - Ancestry</a>
+            </paper-tab>
+            <paper-tab route="prediction">
+              <a href$="/prediction/{{data.id}}" class="horizontal center-center layout links">Step 3 - Prediction</a>
+            </paper-tab>
+            <paper-tab route="summary">
+              <a href$="/summary/{{data.id}}" class="horizontal center-center layout links">Summary</a>
+            </paper-tab>
           </paper-tabs>
         </paper-toolbar>
         <!-- Main Content -->

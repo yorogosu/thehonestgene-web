@@ -1,5 +1,6 @@
 /* global Stomp */
 /* global SockJS */
+/* global page */
 (function(document) {
   'use strict';
 
@@ -8,9 +9,9 @@
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
   app.data = {'stomp': {'connected': false,'subscription': null},
-              'imputation': {'running': false},
-              'ancestry': {'running': false},
-              'prediction': {'running': false}
+              'imputation': {'status': 'Queued','progress': 0, 'step': 'Waiting to be processed'},
+              'ancestry': {'status': 'Queued','progress': 0, 'step': ''},
+              'prediction': {'status': 'Queued','progress': 0, 'step': ''}
              };
   // setup websocket
   var client;
@@ -34,7 +35,7 @@
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Our app is ready to rock!');
-    //this._connectToStomp();
+    // this._connectToStomp();
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -80,10 +81,10 @@
   };
 
   app.onGenotypeUploaded = function(e) {
-    this.set('data.id',e.detail.id);
-    this._connectToStomp();
+    page('/genotype/' + e.detail.id);
   };
-  app._connectToStomp = function() {
+  
+  app.connectToStomp = function() {
     if (!this.data.stomp.connected) {
       var ws = new SockJS('http://127.0.0.1:15674/stomp');
       client = Stomp.over(ws);
@@ -93,15 +94,14 @@
     }
   };
   app._onErrorStomp = function(error) {
-    console.log('Error connecting to STOMP backend: ' + error.headers.message);
+    console.log('Error connecting to STOMP backend: ' + error);
   };
   app._onConnectStomp = function() {
 
     // app.data.stomp.connected = true;
     var dest = '/queue/updates_' + app.data.id;
-    app.data.stomp.subscription = client.subscribe(dest, 
-                                                   app._onHandleStompMessage, 
-                                                   {id: app.data.id});
+    app.data.stomp.subscription = 
+        client.subscribe(dest,app._onHandleStompMessage,{id: app.data.id});
   };
   app._onHandleStompMessage = function(message) {
     console.log(message);
