@@ -1,0 +1,259 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../risk-card/hg-risk-card.html">
+
+<dom-module id="hg-predictions-page">
+  <style include="shared-styles">
+    :host {
+      
+    }
+    .container  {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    hg-risk-card {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    paper-progress {
+      --paper-progress-height:20px;
+    }
+    .buttons {
+         @apply(--layout-self-end);
+    }
+    paper-tabs {
+        background-color:  var(--primary-color);
+        color: #fff;
+    }
+    .detail {
+        margin-top:20px;
+    }
+    iron-pages {
+    }
+    paper-card {
+        --paper-card-background-color:white;
+        max-width:400px;
+        max-height:445px;
+    }
+    card-content {
+        
+    }
+    
+    .traitcardcontainer {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-justified);
+    }
+    iron-pages {
+        padding:10px;
+    }
+  </style>
+  <template>
+      <section class="container">
+        <paper-material elevation="1" class="infocard" id="infocard">
+                <div class="step">
+                    <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
+                </div>
+                <div class="description">
+                    <h2>4. Traits & Predictions</h2>
+                    <p>
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    </p>
+                    <div class="controls">
+                        <div></div>
+                        <div class="buttons">
+                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"><iron-icon icon="" ></iron-icon>Cancel</paper-button>
+                            <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Ancestry</paper-button>
+                            <paper-button id="startBtn" on-tap="_onStartAnalysis" hidden$="{{!isSelectedTraits}}"><iron-icon icon="" ></iron-icon>Start analysis</paper-button>
+                        </div>
+                    </div>
+                </div>
+            </paper-material>  
+            <div id="detail" class="detail">
+                <paper-tabs selected="{{selectedTraitView}}">
+                    <paper-tab>Cards</paper-tab>
+                    <paper-tab>List</paper-tab>
+                </paper-tabs>
+                <iron-pages selected="{{selectedTraitView}}">
+                    <section class="traitcardcontainer">
+                        <template is="dom-repeat" items="{{_getTraits(traits,selectedTraits)}}">
+                            <hg-risk-card trait="[[item]]" analysis="[[_getAnalysis(item.name,runningTraits)]]" on-selected-changed="_updateSelectedTraits" selected="[[_checkItemSelected(item,selectedTraits)]]"></hg-risk-card>
+                        </template>
+                    </section>
+                    <section>
+                        <vaadin-grid id="grid" items="{{_getTraitsForGrid(traits,selectedTraits,runningTraits)}}" on-selected-items-changed="_updateSelectedTraitsFromGrid" selection-mode="multi">
+                            <table>
+                                <colgroup>
+                                <col name="title" max-width="150" flex="1">
+                                <col name="description" max-width="600" flex="4">
+                                <col name="progress"  flex="1">
+                                <col name="risk" max-width="100" flex="1">
+                                </colgroup>
+                            </table>
+                        </vaadin-grid>
+                    </section>
+                </iron-pages>
+            </div>
+         </section>
+  </template>
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-predictions-page',
+        behaviors: [Polymer.NeonAnimatableBehavior,  Polymer.IronResizableBehavior,ReduxBehavior ],
+        
+        properties: {
+             animationConfig: {
+            value: function() {
+              return {
+                'entry': [
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.infocard,
+                },
+                {
+                    name: 'fade-in-animation',
+                    node: this.$.detail,
+                }],
+                'exit': [
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.infocard
+                },{
+                    name: 'fade-out-animation',
+                    node: this.$.detail,
+                }],
+              };
+            },
+        }, 
+          selectedTraitView: {
+              type: Number,
+              value:0
+          },
+          traits: {
+              type: Array,
+              statePath:'riskPredictionStep.traits',
+          }, 
+          isSelectedTraits : {
+              type: Boolean,
+              value: false,
+              computed: '_isSelectedTraits(selectedTraits)'
+          },
+          selectedTraits: {
+              type: Object,
+              value: function() { return {};},
+              statePath: 'riskPredictionStep.selectedTraits',
+          },
+          runningTraits: {
+              type: Object,
+              value: function() { return {};},
+              statePath: 'riskPredictionStep.runningAnalysis',
+          }
+        },
+        listeners: {
+          'iron-resize': '_onIronResize'
+        },
+        actions: {
+            selectTrait: function(name,isChecked) {
+                return { 
+                    type: 'SELECT_TRAIT',
+                    name:name,
+                    isChecked: isChecked,
+                    
+                };
+            },
+            startAnalysis: function(traits) {
+                return {
+                    type: 'START_PREDICTION',
+                    traits: traits,
+                }
+            }
+          },
+          _isSelectedTraits: function(selectedTraits)  {
+            if (selectedTraits && Object.keys(selectedTraits).length > 0) {
+                return true;
+            }  
+            return false;
+          },
+          _onPreviousBtnClick: function() {
+             this.dispatch({type:'CHANGE_STEP',backward:true});
+           },
+           _onNextBtnClick: function() {
+              this.dispatch({type:'CHANGE_STEP'});
+           },
+           _onCancelBtnClick: function() {
+             
+           },
+          _onIronResize: function() {
+             
+          },
+          _getAnalysis: function(name,runningTraits) {
+             if (name in runningTraits) {
+                 return runningTraits[name]; 
+             }  
+             return undefined;
+          },
+          _getTraits: function(traits,selectedTraits) {
+              return traits;
+          },
+          _getTraitsForGrid: function(traits,selectedTraits,runningTraits) { 
+              let newTraits = [...traits];
+              newTraits.map( tr => {
+                 if (tr.name in runningTraits) {
+                     let runningTrait = runningTraits[tr.name];
+                     if (runningTrait.state.state) {
+                        tr.progress = runningTrait.state.state + ' ('+runningTrait.state.progress+'%)';
+                     }
+                     if (runningTrait.data) {
+                        tr.risk = runningTrait.data.risk*100+'%';
+                     }
+                 } 
+              });
+              return newTraits;
+          },
+          _updateSelectedTraits: function(e) {
+              if (e.model.item) {
+                 // FIXME REquired until bug with deselect is fixed
+                 this._fireSelectTraitAction(e.model.item,e.detail.value);
+                 let ix = this.$.grid.items.findIndex( it => it.name === e.model.item.name);
+                 if (e.detail.value) {
+                     this.$.grid.selection.select(ix);
+                 }
+                 else {
+                     this.$.grid.selection.deselect(ix);
+                 } 
+                 
+              }
+          },
+          _onStartAnalysis: function() {
+            this.dispatch('startAnalysis',Object.keys(this.selectedTraits));  
+          },
+          _checkItemSelected: function(item,selectedTraits) {
+              if (item.name in selectedTraits) {
+                  return true;
+              }
+              return false;
+          },
+          _updateSelectedTraitsFromGrid: function(e) {
+              this.$.grid.selection.deselected(index => {
+                let trait = this.$.grid.items[index];
+                this._fireSelectTraitAction(trait,false);
+              });
+              this.$.grid.selection.selected(index => {
+                let trait = this.$.grid.items[index];
+                this._fireSelectTraitAction(trait,true);
+              });
+          },
+          _fireSelectTraitAction: function(item,checked) {
+              if (item && ((checked && !this._checkItemSelected(item,this.selectedTraits)) || (!checked && this._checkItemSelected(item,this.selectedTraits)))) {
+                    this.dispatch('selectTrait',item.name, checked);
+              }
+          }
+          
+      });
+    })();
+  </script>
+</dom-module>
+

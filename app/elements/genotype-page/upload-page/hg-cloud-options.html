@@ -1,0 +1,152 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="hg-cloud-provider.html">
+<link rel="import" href="../../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+
+<dom-module id="hg-cloud-options">
+    <style include="shared-styles">
+        :host {
+            @apply(--layout-layout);
+            @apply(--layout-vertical);
+        }
+        
+        
+        .providers {
+            @apply(--layout-center);
+            @apply(--layout-around-justified);
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-flex);
+        }
+        
+        hg-cloud-provider {
+            cursor: pointer;
+        }
+    </style>
+    <template>
+        <paper-material elevation="1" class="infocard" id="infocard">
+            <div class="step">
+                <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
+            </div>
+            <div class="description">
+                <h2>Cloud Upload</h2>
+                <p>
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                    nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                    mollit anim id est laborum."
+                </p>
+                <div class="controls">
+                    <paper-button on-tap="_close">
+                        <iron-icon class="big" icon="arrow-back"></iron-icon> Back</paper-button>
+                </div>
+            </div>
+        </paper-material>
+        <section class="providers">
+            <template is="dom-repeat" items="{{providers}}" on-dom-change="_providersChanged">
+               <hg-cloud-provider class="provider" logo-url="{{item.logoUrl}}" on-tap="_onTapProvider"></hg-23andme-upload>
+            </template>
+         </section>
+    </template>
+    <script>
+        (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-cloud-options',
+    
+        behaviors: [
+          Polymer.NeonSharedElementAnimatableBehavior
+        ],
+        properties: {
+          sharedElements: {
+            value: function() {
+              return {
+                'hero': this.$.infocard,
+              };
+            },
+          },
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  toPage: this
+                },
+                {
+                  name: 'cascaded-animation',
+                  animation: 'transform-animation',
+                  transformFrom: 'translateY(60vh)',
+                  timing: {delay: 100}
+                },
+                {
+                    name: 'scale-up-animation',
+                    node: this.$.infocard,
+                }
+                ],
+                'exit': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  fromPage: this,
+                },
+                {
+                  name: 'cascaded-animation',
+                  animation: 'transform-animation',
+                  transformTo: 'translateY(60vh)',
+                },
+                {
+                    name: 'scale-down-animation',
+                    node: this.$.infocard,
+                }
+                ],
+              };
+            }
+          },
+          providers: {
+            type: Array,
+            value: function() {
+                return []
+            },
+          },
+        },
+        ready: function() {
+          
+        },
+        _providersChanged: function() {
+          var providers = Polymer.dom(this.root).querySelectorAll('hg-cloud-provider');
+          var providersArray = Array.prototype.slice.call(providers);
+          this.animationConfig.exit[1].nodes = providersArray;
+          this.animationConfig.entry[1].nodes = providersArray;  
+        },
+        _onTapProvider: function(e) {
+            let elem = event.currentTarget;
+            let providersArray =  Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll('hg-cloud-provider'));
+            let index = providersArray.indexOf(elem);
+            if (index > -1) {
+                providersArray.splice(index,1);
+                this.animationConfig.exit[1].nodes = providersArray;
+                this.animationConfig.entry[1].nodes = providersArray;
+            }
+            this.sharedElements.hero = elem;
+            this.fire('select-provider',e.model.item);
+        },
+        _close: function() {
+          this._providersChanged();
+          this.sharedElements.hero = this.$.infocard;
+          this.fire('close-options');
+        }, 
+      });
+    })();
+    </script>
+</dom-module>

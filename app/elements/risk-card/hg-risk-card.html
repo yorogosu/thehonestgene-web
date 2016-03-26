@@ -1,0 +1,89 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="hg-risk-card">
+  <style include="shared-styles">
+    :host {
+      
+    }
+    paper-card {
+        --paper-card-background-color:white;
+        max-width:400px;
+        @apply(--layout-flex);
+    }
+      paper-progress {
+      --paper-progress-height:20px;
+    }
+    
+    .results paper-progress {
+        --paper-progress-active-color: red;
+    }
+  </style>
+  <template>
+        <paper-card heading="{{trait.title}}" image="http://placehold.it/350x150/FFC107/000000">
+            <div class="card-content">{{trait.description}}</div>
+            <div class="card-actions">
+                <div hidden$="{{analysisFinished}}">
+                    <paper-checkbox hidden$="{{analysisRunning}}" checked="{{selected}}"> Select for prediction</paper-checkbox>
+                    <div class="progress" hidden$="{{!analysisRunning}}">
+                        <div>Progress: <span>{{analysis.state.task}}</span></div>
+                        <paper-progress class="transiting" value="{{analysis.state.progress}}"></paper-progress>
+                    </div>
+                </div>
+                <div class="results" hidden$="{{!analysisFinished}}">
+                    <div>Risk: <span>{{percentageRisk}}%</span></div>
+                    <paper-progress class="transiting" class="transiting" value="{{percentageRisk}}"></paper-progress>
+                </div>
+            </div>
+        </paper-card>
+  </template>
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-risk-card',
+        
+        properties: {
+            trait: {
+                type: Object,
+            },
+            selected: {
+                type: Boolean,
+                value:false,
+                notify: true,
+            }, 
+            analysis: {
+                type: Object,
+            },
+            analysisRunning: {
+                type: Boolean,
+                value: false,
+                computed: '_isAnalysisRunning(analysis)',
+            },
+            percentageRisk: {
+                type:Number,
+                computed: '_convertToPercentage(analysis.data.risk)', 
+            },
+            analysisFinished: {
+                type: Boolean,
+                value: false,
+                computed: '_isAnalysisFinished(analysis)',
+            },
+        },
+        _isAnalysisRunning: function(analysis) {
+            return analysis ? true : false;
+        },
+        _isAnalysisFinished: function(analysis) {
+            if (!analysis) return false;
+            return analysis.state.state === 'FINISHED';  
+        },
+        _convertToPercentage: function(risk) {
+            return risk*100;  
+        },
+      });
+    })();
+  </script>
+</dom-module>
+

@@ -3,19 +3,17 @@
 /* global page */
 (function(document) {
   'use strict';
-
+  
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
-  app.data = {'stomp': {'connected': false,'subscription': null},
-              'imputation': {'status': 'Queued','progress': 0, 'step': 'Waiting to be processed'},
-              'ancestry': {'status': 'Queued','progress': 0, 'step': ''},
-              'prediction': {'status': 'Queued','progress': 0, 'step': ''}
-             };
-  // setup websocket
-  var client;
-
+  app.route = 'genotype';
+  store.subscribe(function() {
+     var step = store.getState().currentStep;
+     app.route =  step;
+     app.currentStepIx = steps.indexOf(step)+1; 
+  });
   // Sets app default base URL
   app.baseUrl = '/';
   if (window.location.port === '') {  // if production
@@ -35,13 +33,13 @@
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Our app is ready to rock!');
-    // this._connectToStomp();
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
   });
+  
 
   // Main area's paper-scroll-header-panel custom condensing transformation of
   // the appName in the middle-container and the bottom title in the bottom-container.
@@ -78,33 +76,6 @@
   
   app.closeDrawer = function() {
     //app.$.paperDrawerPanel.closeDrawer();
-  };
-
-  app.onGenotypeUploaded = function(e) {
-    page('/genotype/' + e.detail.id);
-  };
-  
-  app.connectToStomp = function() {
-    if (!this.data.stomp.connected) {
-      var ws = new SockJS('http://127.0.0.1:15674/stomp');
-      client = Stomp.over(ws);
-      client.heartbeat.outgoing = 0;
-      client.heartbeat.incoming = 0;
-      client.connect('guest', 'guest', app._onConnectStomp, app._onErrorStomp, '/');
-    }
-  };
-  app._onErrorStomp = function(error) {
-    console.log('Error connecting to STOMP backend: ' + error);
-  };
-  app._onConnectStomp = function() {
-
-    // app.data.stomp.connected = true;
-    var dest = '/queue/updates_' + app.data.id;
-    app.data.stomp.subscription = 
-        client.subscribe(dest,app._onHandleStompMessage,{id: app.data.id});
-  };
-  app._onHandleStompMessage = function(message) {
-    console.log(message);
   };
 
   // Scroll page to top and expand header

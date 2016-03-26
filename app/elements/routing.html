@@ -32,52 +32,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       next();
     }
     
-    function setFocus(selected){
-      document.querySelector('neon-animatable[data-route="' + selected + '"]').focus();
+    function updateRedux(ctx,next) {
+        var step = ctx.pathname;
+        if (steps.indexOf(step) !== -1 && store.getState().currentStep !== step) {
+            store.dispatch({type:'CHANGE_CURRENT_STEP',step:step});
+        }
     }
+    
+    function setFocus(selected){
+     // document.querySelector('neon-animatable[data-route="' + selected + '"]').focus();
+    }
+    
+    store.subscribe(function(){
+       var state = store.getState();
+       var targetPage = state.currentStep;
+        if (state.genotypeStep.id) {
+            targetPage+='/'+state.genotypeStep.id;
+        }
+        if (page)
+        page(targetPage);
+    });
 
     // Routes
-    page('*', scrollToTop, closeDrawer, function(ctx, next) {
+    page('*', scrollToTop, closeDrawer,updateRedux, function(ctx, next) {
       next();
     });
     
     page('/', function() {
-      app.route = 'genotype';
       setFocus(app.route);
     });
     
     page(app.baseUrl, function() {
-      app.route = 'genotype';
       setFocus(app.route);
     });
-
+    
     page('/genotype/:id?', function(ctx) {
-      app.route = 'genotype';
-      // TODO check if there is an id and see if it still valid. 
-      app.set('data.id',ctx.params.id);
-      if (app.data.id !== null) {
-        app.connectToStomp();
-      }
-      ctx.state.id = app.data.id;
+      setFocus(app.route);
+    });
+    
+    page('/imputation/:id?', function(data) {
       setFocus(app.route);
     });
 
     page('/ancestry/:id?', function(data) {
-      // TODO check if ancestry step 
-      app.route = 'ancestry';
-      app.params = data.params;
       setFocus(app.route);
     });
-
-    page('/prediction/:id?', function() {
-      // TODO check if prediction step
-      app.route = 'prediction';
-      setFocus(app.route);
-    });
-    
-    page('/summary/:id?', function() {
-      // TODO check if prediction step
-      app.route = 'summary';
+    page('/predictions/:id?', function() {
       setFocus(app.route);
     });
 

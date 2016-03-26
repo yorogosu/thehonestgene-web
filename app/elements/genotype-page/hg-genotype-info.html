@@ -1,0 +1,390 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-chart/google-chart.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+
+<dom-module id="hg-genotype-info">
+    <style include="shared-styles">
+        :root {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+        }
+        
+        section {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+        }
+        
+        paper-progress {
+            --paper-progress-height: 20px;
+        }
+        
+        google-chart {
+            width: 100%;
+            height: 100%;
+            visibility: hidden;
+        }
+        
+        h2 {
+            text-align: center;
+        }
+        
+        .overallstats {
+            @apply(--layout-horizontal);
+        }
+        
+        .overallstats > div {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+        }
+        
+        .buttons {
+            @apply(--layout-self-end);
+        }
+    </style>
+    <template strip-whitespace>
+        <section>
+            <paper-material elevation="1" class="infocard" id="infocard">
+                <div class="step">
+                    <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
+                </div>
+                <div class="description">
+                    <h2>1. Genotype</h2>
+                    <p>
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                        nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                        mollit anim id est laborum."
+                    </p>
+                    <div class="controls">
+                        <div hidden$="{{isFinished}}">Progress: <span>Uploading... <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
+                    <div hidden$="{{!isFinished}}">Total number of SNPs: <span>{{numberofsnps}}</span></div>
+                        <div class="buttons">
+                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick">
+                                <iron-icon icon=""></iron-icon>Cancel</paper-button>
+                            <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Imputation
+                                <iron-icon icon="arrow-forward"></iron-icon>
+                            </paper-button>
+                        </div>
+                    </div>
+                </div>
+            </paper-material>
+            <div class="chartcontainer" id="chartcontainer">
+                <div class="overallstats">
+                    <div>
+                        <h2>Total heterozygosity</h2>
+                        <google-chart id="homoChart" type="pie" data="{{dataForHetero}}" options="{{_getChartOptionsForHetero(dataForHetero)}}"></google-chart>
+                    </div>
+                    <div>
+                        <h2>Annotations</h2>
+                        <google-chart id="annotationChart" type="pie" data="{{dataForAnnotations}}" options="{{_getChartOptionsForAnnotations(dataForAnnotations)}}"></google-chart>
+                    </div>
+                </div>
+                <div>
+                    <h2>Number of SNPs per chromosome</h2>
+                    <google-chart id="numberOfSNPsChart" type="column" data="{{dataForNumberOfSnps}}" options="{{_getChartOptionsForNumberOfSNPs(dataForNumberOfSnps)}}"></google-chart>
+                </div>
+                <div>
+                    <h2>Heterozygosity per chromosome</h2>
+                    <google-chart id="homoPerChrChart" type="column" data="{{dataForHeteroPerChr}}" options="{{_getChartOptionsForHeteroPerChr(dataForHeteroPerChr)}}"></google-chart>
+                </div>
+                <div>
+                    <h2>Annotations per chromosome</h2>
+                    <google-chart id="annotationPerChrChart" type="column" data="{{dataForAnnotationsPerChr}}" options="{{_getChartOptionsForAnnotationsPerChr(dataForAnnotationsPerChr)}}"></google-chart>
+                </div>
+            </div>
+        </section>
+    </template>
+    <script>
+        (function() {
+    
+    var slices = {}
+    var emptyChartOptionsForNumberOfSNPs = {
+        title: 'Analyzing genotype...',
+        legend:'none',
+        colors: ['#ccc'],
+        hAxis: {
+            textStyle: {color:'#ccc'}
+        },
+        vAxis: {
+            textStyle: {color:'#ccc'},
+            title: '# of SNPs',
+            titleTextStyle: {
+                color: '#ccc'
+            }
+        },
+        enableInteractivity:false,
+    }
+    
+    var emptyChartOptionsForHeteroPerChr = {
+        title: 'Analyzing genotype...',
+        colors: ['#ccc'],
+        enableInteractivity:false,
+        hAxis: {
+            textStyle: {color:'#ccc'}
+        },
+        vAxis: {
+            textStyle: {color:'#ccc'},
+            title: '# of SNPs',
+            titleTextStyle: {
+                color: '#ccc'
+            }
+        },
+    }
+    
+     var emptyChartOptionsForAnnotationsPerChr = {
+        title: 'Analyzing genotype...',
+        bar: { groupWidth: '75%' },
+        isStacked: 'percent',
+        colors: ['#ccc','#ccc','#ccc'],
+        enableInteractivity:false,
+        hAxis: {
+            textStyle: {color:'#ccc'}
+        },
+        vAxis: {
+            textStyle: {color:'#ccc'},
+            title: '% of SNPs',
+            titleTextStyle: {
+                color: '#ccc'
+            }
+        },
+    }
+    
+    var emptyChartDataForAnnotationsPerChr = [['Chr','AA','TT','AT']]
+     for (var i=0;i<23;i++) {
+        emptyChartDataForAnnotationsPerChr.push(['Chr'+(i+1),20,40,50]);
+    }
+    
+    var emptyDataForHetereo = [['Type', '# of SNPs'],['heterozygous',0.5],['homozygous',0.5]];
+   
+    var emptyChartDataForNumberOfSNPs = [['Chr','number of SNPs']];
+    for (var i=0;i<23;i++) {
+        emptyChartDataForNumberOfSNPs.push(['Chr'+(i+1),50]);
+    }
+    
+    var emptyChartDataForHeteroPerChr = [['Chr','# of SNPs']]
+    for (var i=0;i<23;i++) {
+        emptyChartDataForHeteroPerChr.push(['Chr'+(i+1),10000]);
+    }
+      
+    Polymer({
+      is: 'hg-genotype-info',
+      
+      behaviors: [ Polymer.NeonSharedElementAnimatableBehavior, Polymer.IronResizableBehavior, ReduxBehavior ],
+
+      properties: {
+          sharedElements: {
+            value: function() {
+              return {
+                'hero': this.$.infocard
+              };
+            }
+          },
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  toPage: this
+                },
+                 {
+                    name: 'fade-in-animation',
+                    node: this.$.chartcontainer,
+                },
+                ],
+                'entry2': [{
+                    name: 'scale-up-animation',
+                    node: this.$.infocard
+                }
+                ],
+                'exit': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  fromPage: this
+                },
+                {
+                    name: 'fade-out-animation',
+                    node: this.$.chartcontainer,
+                },
+                ],
+                'exit2': [
+                    {
+                        name: 'scale-down-animation',
+                        node: this.$.infocard
+                    }
+                ]
+              };
+            }
+          },
+        dataForNumberOfSnps: {
+            type: Object,
+            value: function() { return emptyChartDataForNumberOfSNPs },
+        },
+        dataForHetero: {
+            type: Object,
+            value: function() { return emptyDataForHetereo },
+        },
+        dataForHeteroPerChr: {
+            type: Object,
+            value: function() { return emptyChartDataForHeteroPerChr },
+        },
+        dataForAnnotations: {
+            type: Object,
+            value: function() { return emptyDataForHetereo },
+        },
+        dataForAnnotationsPerChr: {
+            type: Object,
+            value: function() { return emptyChartDataForAnnotationsPerChr },
+        },
+        numberofsnps: {
+            type:Number,
+        },
+        state: {
+            type:Object,
+            statePath: 'genotypeStep.uploadState.state'
+        },
+        isFinished: {
+            type: Boolean,
+            computed: '_isFinished(state)'
+        },
+        
+        
+      },
+      listeners: {
+          'iron-resize': '_onIronResize',
+          'google-chart-render':"_onRenderChart",
+        },
+      _isFinished: function(state) {
+        return state === 'FINISHED';  
+      },
+      _getNextBtnVisibility: function(isFinished) {
+          return isFinished ? 'visible' : 'hidden';
+      },
+      _getChartOptionsForNumberOfSNPs: function(data) {
+          if (data === emptyChartDataForNumberOfSNPs) {
+            return emptyChartOptionsForNumberOfSNPs;
+          }
+          return  {
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+            legend:'none', 
+          }
+          
+      },
+      _getChartOptionsForHeteroPerChr: function(data) {
+           if (data === emptyChartDataForHeteroPerChr) {
+              return emptyChartOptionsForHeteroPerChr;
+          }
+          return {
+            title:'Heterozygosity per chromosome',
+            isStacked:'percent',
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+          }
+      },
+      _getChartOptionsForHetero: function(data) {
+           if (data === emptyDataForHetereo) {
+              return  {
+                title: 'Analyzing genotype...',
+                slices: {
+                  0:{color:'#ccc'},
+                  1:{color:'#ccc'}  
+                },
+                pieSliceText:'none',
+                enableInteractivity:false,
+              }
+          }
+          return {
+            title: 'Total heterozygosity',
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+          }
+      },
+      _getChartOptionsForAnnotationsPerChr: function(data) {
+           if (data === emptyChartDataForAnnotationsPerChr) {
+              return emptyChartOptionsForAnnotationsPerChr;
+          }
+          return {
+            title:'Annotations per chromosome',
+            isStacked:'percent',
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+            legend:'top',
+          }
+      },
+      _getChartOptionsForAnnotations: function(data) {
+           if (data === emptyDataForHetereo) {
+              return  {
+                title: 'Analyzing genotype...',
+                slices: {
+                  0:{color:'#ccc'},
+                  1:{color:'#ccc'}  
+                },
+                pieSliceText:'none',
+                animation:{
+                    duration: 1000,
+                    easing: 'out',
+                }, 
+                enableInteractivity:false,
+              }
+          }
+          return {
+            title: 'Annotations',
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+            legend:'bottom',
+          }
+      },
+     _onNextBtnClick: function() {
+         this.dispatch({type:'CHANGE_STEP'});
+     },
+     _onCancelBtnClick: function() {
+         this.fire('close-card');
+     },
+    _onRenderChart: function(e) {
+         if (Polymer.dom(this).classList.contains('iron-selected')) {
+             let chart = e.srcElement;
+             chart.style.visibility = 'visible';
+         }
+     },
+      _onIronResize: function() {
+          if (Polymer.dom(this).classList.contains('iron-selected')) {
+            this.debounce('redraw', function () {
+                this.$.numberOfSNPsChart.drawChart();
+                this.$.homoChart.drawChart();
+                this.$.homoPerChrChart.drawChart();
+                this.$.annotationPerChrChart.drawChart();
+                this.$.annotationChart.drawChart();
+            });
+          }
+       }
+    });
+  })();
+    </script>
+</dom-module>

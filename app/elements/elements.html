@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!-- Iron elements -->
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
@@ -35,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animatable-behavior.html">
 
 <!-- Uncomment next block to enable Service Worker Support (2/2) -->
 <!--
@@ -42,19 +44,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/platinum-sw/platinum-sw-register.html">
 -->
 
+<!-- polymer redux -->
+<link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
+<!-- build:js ../scripts/reducers/selectors.js -->
+<script src="../scripts/reducers/selectors.js"></script>
+<!-- endbuild -->
+<!-- build:js ../scripts/actions/actions.js -->
+<script src="../scripts/actions/actions.js"></script>
+<!-- endbuild -->
+<!-- build:js ../scripts/sagas/channel.js -->
+<script src="../scripts/sagas/channel.js"></script>
+<!-- endbuild -->
+<!-- build:js ../scripts/reducers/root.js -->
+<script src="../scripts/reducers/root.js"></script>
+<!-- endbuild -->
+<!-- build:js ../scripts/sagas/root.js -->
+<script src="../scripts/sagas/effects.js"></script>
+<!-- endbuild -->
+<!-- build:js ../scripts/store/configureStore.js -->
+<script src="../scripts/store/configureStore.js"></script>
+<!-- endbuild -->
+
+
 <!-- Configure your routes here -->
 <link rel="import" href="routing.html">
 
 <!-- Add your elements here -->
 <link rel="import" href="../styles/app-theme.html">
 <link rel="import" href="../styles/shared-styles.html">
-
-<link rel="import" href="h-genotype-upload/h-genotype-upload.html">
-<link rel="import" href="anim-card/anim-card.html">
-<link rel="import" href="upload-page/upload-page.html">
-<link rel="import" href="cloud-page/cloud-page.html">
-<link rel="import" href="genotype-page/genotype-page.html">
-<link rel="import" href="h-file-upload/h-file-upload.html">
-<link rel="import" href="cloud-page/cloud-page.html">
-<link rel="import" href="imputation-page/imputation-page.html">
-<link rel="import" href="hg-cloud-23andme/hg-cloud-23andme.html">
+<link rel="import" href="genotype-page/hg-genotype-page.html">
+<link rel="import" href="ancestry-page/hg-ancestry-page.html">
+<link rel="import" href="imputation-page/hg-imputation-page.html">
+<link rel="import" href="predictions-page/hg-predictions-page.html">
+<link rel="import" href="../bower_components/timeu-wizard/timeu-wizard.html">

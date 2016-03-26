@@ -1,0 +1,232 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-chart/google-chart.html">
+
+<dom-module id="hg-ancestry-page">
+  <style include="shared-styles">
+    :host {
+       @apply(--layout-vertical); 
+    }
+    google-chart {
+        width:100%;
+        visibility: hidden;
+        @apply(--layout-flex);
+        min-height:500px;
+    }
+    section  {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    paper-progress {
+      --paper-progress-height:20px;
+    }
+    .chartcontainer {
+        margin-top:20px;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+  </style>
+  <template>
+      <section>
+        <paper-material elevation="1" class="infocard" id="infocard">
+                <div class="step">
+                    <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
+                </div>
+                <div class="description">
+                    <h2>3. Ancestry analysis</h2>
+                    <p>
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    </p>
+                    <div class="controls">
+                        <div>Progress: <span>{{state.task}} <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
+                        <div class="buttons">
+                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"><iron-icon icon="" ></iron-icon>Cancel</paper-button>
+                            <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Imputation</paper-button>
+                            <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Risk prediction<iron-icon icon="arrow-forward" ></iron-icon></paper-button>
+                        </div>
+                    </div>
+                </div>
+            </paper-material>  
+            <div id="chartcontainer" class="chartcontainer">
+                <google-chart id="chart"
+                    type='scatter'
+                    options="{{options}}""
+                    data = "{{datasource}}"
+                </google-chart>
+            </div>
+         </section>
+  </template>
+  <script>
+    (function() {
+      'use strict';
+      
+      
+      var emptyDataSource = [['PC1','EUR','ASA','AFR']];
+      for (let i=0;i<200;i++) {
+          emptyDataSource.push([Math.random(),Math.random(),Math.random(),Math.random()]);
+      }
+      
+      var defaultOptions = {
+          title: "Are you european?", 
+          dataOpacity:0.5, 
+          hAxis: {
+              gridlines:{
+                  count:0
+                }, 
+                title: "PC1",
+                titleTextStyle: {
+                  color: 'black'
+                 },
+                
+          },
+          vAxis: {
+              gridlines:{
+                  count:0
+              },
+              titleTextStyle: {
+                color: 'black'
+              },
+              title: "PC2"
+          },
+          enableInteractivity:false,
+          pointSize:3,
+          series:{
+              5:{
+                  color:"black", 
+                  pointShape:"star",
+                  pointSize:20,
+                  dataOpacity:1.0
+                }
+            },
+            animation: {
+                duration:1000,
+                easing: 'inAndOut',
+                startup: true,
+            }, 
+        };
+        
+        var emptyOptions = Object.assign({},defaultOptions);
+        emptyOptions.colors = ['#ccc','#ccc','#ccc'];
+        emptyOptions.title='Analysis is running...';
+        emptyOptions.vAxis.titleTextStyle.color='#ccc';
+        emptyOptions.hAxis.titleTextStyle.color='#ccc';
+        delete emptyOptions.animation;
+      
+      Polymer({
+        is: 'hg-ancestry-page',
+        behaviors: [Polymer.NeonAnimatableBehavior, Polymer.IronResizableBehavior,ReduxBehavior ],
+        
+        properties: {
+            animationConfig: {
+                value: function() {
+                return {
+                    'entry': [
+                    {
+                    name: 'scale-up-animation',
+                    node: this.$.infocard
+                    },
+                    {
+                        name: 'fade-in-animation',
+                        node: this.$.chartcontainer,
+                    }],
+                    'exit': [
+                    {
+                    name: 'scale-down-animation',
+                    node: this.$.infocard
+                    },
+                    {
+                        name: 'fade-out-animation',
+                        node: this.$.chartcontainer,
+                    }],
+                };
+            },
+          }, 
+          pc1: {
+              type:Number,
+              statePath: 'ancestryStep.data.pc1'
+          },
+          pc2: {
+              type:Number,
+              statePath: 'ancestryStep.data.pc2'
+          },
+          state: {
+            type: String,
+            statePath: 'ancestryStep.state'
+           },
+           isFinished: {
+              type: Boolean,
+              computed:'_isFinished(state.state)'
+          },
+          data: {
+            type: Object,
+            value: function() { return {};}
+          },
+          options: {
+            type: Object,
+            value: function() { return emptyOptions;},
+            computed: '_computeOptions(pc1,pc2)'
+              
+          },
+          datasource : {
+              type:Object,
+              value: function() { return emptyDataSource;},
+              computed: '_computeDataSource(pc1,pc2)'
+          }
+        },
+        listeners: {
+          'iron-resize': '_onIronResize',
+          'google-chart-render':"_onRenderChart",
+        },
+         _isFinished: function(state) {
+           return state === 'FINISHED';
+        }, 
+        _getNextBtnVisibility: function(isFinished) {
+          return isFinished ? 'visible' : 'hidden';
+        },
+        actions: {
+            changePage: function(page) {
+                return { 
+                    type: 'CHANGE_UPLOAD_PAGE',
+                    page:page
+                };
+            }
+          },
+          _onPreviousBtnClick: function() {
+            this.dispatch({type:'CHANGE_STEP',backward:true});
+           },
+            _onNextBtnClick: function() {
+                this.dispatch({type:'CHANGE_STEP'});
+            },
+            _onCancelBtnClick: function() {
+             
+           },
+           _computeOptions: function(pc1,pc2) {
+               if (pc1 && pc2) {
+                return defaultOptions;
+              }
+              return emptyOptions;
+           },
+          _computeDataSource: function(pc1,pc2) {
+              if (pc1 && pc2) {
+                return '/api/plotpcs?pc1='+pc1+'&pc2='+pc2;
+              }
+              return emptyDataSource;
+          },
+          _onRenderChart: function(e) {
+                if (Polymer.dom(this).classList.contains('iron-selected')) {
+                    let chart = e.srcElement;
+                    chart.style.visibility = 'visible';
+                }
+           },
+          _onIronResize: function() {
+               if (Polymer.dom(this).classList.contains('iron-selected')) {
+                  this.debounce('redraw', function () {
+                    this.$.chart.drawChart();
+                  });
+               }
+          }
+          
+      });
+    })();
+  </script>
+</dom-module>
+

@@ -1,0 +1,169 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+
+<dom-module id="hg-cloud-detail">
+    <style include="shared-styles">
+        :host {
+            @apply(--layout-layout);
+            @apply(--layout-vertical);
+        }
+        
+        .big {
+            height: 32px;
+            width: 32px;
+        }
+        
+        .cloudpage {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+        }
+        
+        .detail {
+            @apply(--layout-center);
+            @apply(--layout-around-justified);
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-flex);
+        }
+        
+        hg-cloud-provider {
+            cursor: pointer;
+        }
+        
+        iron-pages {
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
+        }
+        
+        .genotype {
+            width: 300px;
+            height: 250px;
+            @apply(--layout-vertical);
+        }
+        
+        .genotype h2 {
+            @apply(--layout-flex);
+            text-align: center;
+            margin-top: 100px;
+        }
+        
+        .genotype paper-button {
+            @apply(--layout-self-end);
+            background: var(--paper-blue-500);
+            color: white;
+            margin: 10px;
+        }
+    </style>
+    <template>
+        <section class="cloudpage"  id="detail">
+            <paper-material elevation="1" class="infocard" id="infocard">
+                <div class="step">
+                    <img src="{{provider.logoUrl}}">
+                </div>
+                <div class="description">
+                    <h2>{{provider.name}}</h2>
+                    <p>
+                        {{provider.description}}
+                    </p>
+                    <div class="controls">
+                        <paper-button on-tap="_closeDetailView">
+                            <iron-icon class="big" icon="arrow-back"></iron-icon> Back</paper-button>
+                    </div>
+                </div>
+            </paper-material>
+            <section class="detail" id="detail_content" >
+                <template is="dom-repeat" items="{{genotypes}}" on-dom-change="_genotypesRendered">
+                    <paper-material elavation="1" class="genotype">
+                        <h2>{{item.id}}</h2>
+                        <paper-button on-click="_selectGenotype" raised>Upload</paper-button>
+                    </paper-material>
+                </template>
+            </section>
+        </section>
+    </template>
+    <script>
+        (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-cloud-detail',
+    
+        behaviors: [
+          ReduxBehavior,
+          Polymer.NeonSharedElementAnimatableBehavior
+        ],
+        properties: {
+            sharedElements: {
+                value: function() {
+                    return {
+                      'hero': this.$.infocard,
+                    };
+                },
+          },
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  toPage: this
+                },
+                {
+                  name: 'cascaded-animation',
+                  animation: 'transform-animation',
+                  transformFrom: 'translateX(100vw)',
+                  duration: {delay:100},
+                },
+                ],
+                'exit': [{
+                  name: 'hero-animation',
+                  id: 'hero',
+                  fromPage: this,
+                },
+                {
+                  name: 'cascaded-animation',
+                  animation: 'transform-animation',
+                  transformTo: 'translateX(100vw)',
+                }
+                ],
+              };
+            }
+          },
+          provider: {
+              type: Object,
+          },
+          genotypes: {
+              type: Array
+          }
+        },
+        ready: function() {
+          
+        },
+        _closeDetailView: function() {
+            this.fire('close-detail');
+        },
+        _selectGenotype: function(e) {
+          this.fire('select-genotype',e.model.item.id);  
+        },
+        _genotypesRendered: function() {
+          var providers = Polymer.dom(this.root).querySelectorAll('.genotype');
+          var providersArray = Array.prototype.slice.call(providers);
+          if (providersArray.length) {
+            this.animationConfig.exit[1].nodes = providersArray;
+            this.animationConfig.entry[1].nodes = providersArray;
+          }  
+        }
+      });
+    })();
+    </script>
+</dom-module>

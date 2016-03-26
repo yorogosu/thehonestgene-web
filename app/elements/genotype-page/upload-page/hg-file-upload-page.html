@@ -8,31 +8,20 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="hg-file-upload.html">
 
-<dom-module id="upload-page">
-  <style>
+<dom-module id="hg-file-upload-page">
+  <style include="shared-styles">
     :host {
       @apply(--layout-vertical);
-
     }
-
-        .header h1 {
-      display:inline-block;
-    }
-    .big {
+  .big {
     height: 32px;
     width: 32px;
   }
   paper-toolbar {
-    --paper-toolbar-background:#4CAF50;
-  }
-  #dropzone {
-    @apply(--layout-vertical);
-    @apply(--layout-center-center);
-    height:500px;
-    width:700px;
-    background-color: #FFFFFF;
+    --paper-toolbar-background:#39ba6f;
   }
 
   .container {
@@ -42,22 +31,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   }
   </style>
   <template>
-     <paper-toolbar id="header">
-        <iron-icon class="big"  icon="arrow-back" on-tap="_close"></iron-icon>
-        <h1>Normal Upload</h1>
-      </paper-toolbar>
+      <paper-material elevation="1" class="infocard" id="infocard">
+          <div class="step">
+               <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
+          </div>
+          <div class="description">
+              <h2>File Upload</h2>
+                <p>
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+               </p>
+               <div class="controls">
+                    <paper-button on-tap="_close"><iron-icon class="big"   icon="arrow-back" ></iron-icon> Back</paper-button>
+               </div>
+          </div>
+      </paper-material>
       <div class="container" id="dropzonecontainer">
-      <paper-material id="dropzone" elevation="2" >
-        <h-file-upload id="upload" url="/api/genotype"></h-file-upload>
-    </paper-material>
-    </div>
+        <hg-file-upload id="upload" url="/api/genotype"></hg-file-upload>
+      </div>
   </template>
   <script>
     (function() {
       'use strict';
       
       Polymer({
-        is: 'upload-page',
+        is: 'hg-file-upload-page',
     
         behaviors: [
           Polymer.NeonSharedElementAnimatableBehavior
@@ -66,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           sharedElements: {
             value: function() {
               return {
-                'hero': this.$.header
+                'hero': this.$.infocard, 
               };
             }
           },

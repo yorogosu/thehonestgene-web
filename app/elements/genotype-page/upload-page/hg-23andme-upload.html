@@ -1,6 +1,6 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
 
-<dom-module id="hg-cloud-23andme">
+<dom-module id="hg-23andme-upload">
   <template>
     <style>
       :host {
@@ -15,10 +15,7 @@
         right:0;
       }
       .card {
-        width:250px;
-        height:250px;
-        @apply(--layout-center-center);
-        @apply(--layout-vertical);
+        
       }
       paper-spinner {
         position:absolute;
@@ -41,7 +38,7 @@
       on-response="_handleGenotypeUploadResponse" loading="{{loading}}" debounce-duration="300">
     </iron-ajax>
     <paper-material elevation="1" class="card" id="23andme" on-tap="_onTap" hidden$="{{profiles}}">
-      <img src="https://api.23andme.com/res/img/logos/icn_logo.b46b629c0c0a.png" />
+      <img src$="{{logoUrl}}" />
     </paper-material>
     <template is="dom-repeat" items="{{profiles.profiles}}">
       <paper-material elavation="1" class="card" >
@@ -58,11 +55,24 @@
     var OAUTHURL = 'https://api.23andme.com/authorize/?redirect_uri=http://localhost:5000/receive_code/&response_type=code&client_id=ca3fe941649f96541961f797e5fb0beb&scope=genomes basic names'; // jscs:ignore maximumLineLength 
     
     Polymer({
-      is: 'hg-cloud-23andme',
-
+      is: 'hg-23andme-upload',
+      behaviors: [ ReduxBehavior ],
+      
       properties: {
         oauthFinished: {
           computed: '_hasAuthCredentials(authHeaders)'
+        },
+        logoUrl: {
+            type:String,
+        }
+      },
+      actions: {
+        retrieveToken: function(code) {
+            return { 
+                type: 'RETRIEVE_CLOUD_TOKEN',
+                code:code,
+                provider:'23andme'
+            };
         }
       },
       loading: false,
@@ -84,16 +94,11 @@
               var url = win.document.URL;
               var code = this._gup(url, 'code');
               win.close();
-              this._retrieveToken(code);
+              this.dispatch(retrieveToken(code));
             }
           } catch (e) {
           }
         }.bind(this), 100);
-      },
-      _retrieveToken: function(code) {
-        console.log(code);
-        this.$.tokenService.headers = {'CODE': code};
-        this.$.tokenService.generateRequest();
       },
       _hasAuthCredentials: function(credentials) {
         return (credentials !== null);

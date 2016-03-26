@@ -1,0 +1,233 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="hg-cloud-provider.html">
+<link rel="import" href="hg-cloud-options.html">
+<link rel="import" href="hg-cloud-detail.html">
+<link rel="import" href="../../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+
+<dom-module id="hg-cloud-page">
+    <style include="shared-styles">
+        :host {
+            display: block;
+            @apply(--layout-layout);
+            @apply(--layout-vertical);
+        }
+        
+        .big {
+            height: 32px;
+            width: 32px;
+        }
+        
+        .cloudpage {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+        }
+        
+        .providers,
+        .detail {
+            @apply(--layout-center);
+            @apply(--layout-around-justified);
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-flex);
+        }
+        
+        hg-cloud-provider {
+            cursor: pointer;
+        }
+        
+        iron-pages {
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
+        }
+        
+        .genotype {
+            width: 300px;
+            height: 250px;
+            @apply(--layout-vertical);
+        }
+        
+        .genotype h2 {
+            @apply(--layout-flex);
+            text-align: center;
+            margin-top: 100px;
+        }
+        
+        .genotype paper-button {
+            @apply(--layout-self-end);
+            background: var(--paper-blue-500);
+            color: white;
+            margin: 10px;
+        }
+        neon-animated-pages {
+            @apply(--layout-vertical);
+            @apply(--layout-flex);
+        }
+    </style>
+    <template>
+
+        <neon-animated-pages selected="[[cloudpage]]" attr-for-selected="cloud-data-route">
+            <hg-cloud-options cloud-data-route="list" id="list" class="cloudpage" on-close-options="_onCloseOptions" on-select-provider="_onSelectProvider" providers="[[providers]]"></hg-cloud-options>
+            <hg-cloud-detail class="cloudpage" cloud-data-route="detail" id="detail" provider="[[selectedProvider]]" on-close-detail="_onCloseDetail" on-select-genotype="_onSelectGenotype" genotypes="[[currentGenotypes]]"></hg-cloud-detail>
+        </neon-animated-pages>
+    </template>
+    <script>
+        (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-cloud-page',
+    
+        behaviors: [
+          ReduxBehavior,
+          Polymer.NeonAnimatableBehavior
+        ],
+        actions: {
+          retrieveGenotypes: function(provider,code) {
+            return { 
+                type: 'RETRIEVE_CLOUD_GENOTYPES',
+                code:code,
+                provider:provider
+            };
+          },
+          transferGenotype: function(provider,id) {
+              return {
+                  type: 'TRANSFER_GENOTYPE_FROM_PROVIDER',
+                  provider:provider,
+                  id:id
+              }
+          },
+          selectProvider: function(provider) {
+            return {
+                type: 'SELECT_PROVIDER',
+                provider:provider,
+            }  
+          },
+        },
+        properties: {
+          animationConfig: {
+            value: function() {
+                   return {
+                       'entry': [
+                        {animatable: this.$.list, type: 'entry'},
+                   ],
+                     'exit': [
+                        {animatable: this.$.list, type: 'exit'},
+                    ]
+                   }  
+                }
+          },
+          cloudpage: {
+              type:String,
+              value: 'list',
+          },
+          providers: {
+            type: Array,
+            value: function() {
+                return []
+            },
+            statePath:'genotypeStep.cloudUpload.availableProviders'
+          },
+          selectedProviders: {
+            type:Object,
+            value: function() {return {}},
+            statePath:'genotypeStep.cloudUpload.selectedProviders'
+          },
+          currentProvider: {
+            type: String,
+            statePath:'genotypeStep.cloudUpload.currentProvider',
+            observer:'_changeCurrntProvider'
+          },
+          selectedProvider: {
+              type: Object,
+              computed: '_getSelectedProvider(currentProvider)'
+          },
+          currentGenotypes: {
+              type: Array,
+          }
+        },
+        _getGenotypesFromProvider: function(currentProvider) {
+            if (currentProvider && this.selectedProviders[currentProvider]) {
+                return this.selectedProviders[currentProvider].genotypes;
+            }
+            return [];
+        },
+        ready: function() {
+          
+        },
+        _onSelectProvider: function(e) {
+            var provider = e.detail;
+            if (!this.selectedProviders.hasOwnProperty(provider.name)) {
+                this._openOAuthWindow(provider.name,provider.oauthurl);
+            } else {
+                this.dispatch('selectProvider',provider.name);
+            } 
+        },
+        _changeCurrntProvider: function(currentProvider) {
+           let page = 'list';
+           let genotypes = this.currentGenotypes;
+           if (currentProvider !== null) {
+               page = 'detail';
+               this.currentGenotypes = this._getGenotypesFromProvider(currentProvider);
+           }  
+           this.async(()=>this.cloudpage = page);
+        },
+       _onSelectGenotype: function(e) {
+           this.dispatch('transferGenotype',this.currentProvider,e.detail);
+        },
+        _getSelectedProvider: function(currentProvider) {
+            if (currentProvider === null)
+                return null;
+            var filteredProvider = this.providers.filter((provider)=>provider.name===currentProvider);
+            if (filteredProvider.length > 0) {
+                return this.providers[0];
+            }
+            return null;
+        },
+        _openOAuthWindow: function(provider,oauturl) {
+            var win = window.open(oauturl, 'windowname1', 'width=800, height=600'); 
+            var REDIRECT = 'http://localhost:5000/receive_code/';
+            var pollTimer = window.setInterval(function() { 
+                try {
+                    if (win.document.URL.indexOf(REDIRECT) !== -1) {
+                        window.clearInterval(pollTimer);
+                        var url = win.document.URL;
+                        var code = this._gup(url, 'code');
+                        win.close();
+                        this.dispatch('retrieveGenotypes',provider,code);
+                    }
+                } catch (e) {
+                }
+            }.bind(this), 100);
+        },
+        _gup: function(url, name) {
+            name = name.replace(/[[]/,'\[').replace(/[]]/,'\]');
+            var regexS = '[\?&]' + name + '=([^&#]*)';
+            var regex = new RegExp(regexS);
+            var results = regex.exec(url);
+            if (results === null) {
+            return '';
+            } else {
+            return results[1];
+            }
+        },
+        _onCloseOptions: function() {
+            this.dispatch('selectProvider',null);
+            this.fire('close-card');
+        },
+        _onCloseDetail: function() {
+            this.dispatch('selectProvider',null);
+        },
+      });
+    })();
+    </script>
+</dom-module>

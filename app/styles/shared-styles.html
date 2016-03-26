@@ -19,6 +19,35 @@
       paper-menu a > *, paper-menu paper-item > *, paper-menu paper-icon-item > * {
         pointer-events: none;
       }
+      
+      .infocard {
+         @apply(--layout-horizontal)
+         padding:20px; 
+      }
+      .infocard .step {
+         padding:20px;
+         text-align:center;
+      }
+      .infocard .description {
+          @apply(--layout-flex);
+          @apply(--layout-vertical);
+          @apply(--layout-center-justified);
+          padding:10px;
+       }
+       .infocard .description h2 {
+          margin: 5px;
+          text-align:start;
+       }
+       .infocard .description p {
+          margin: 5px;
+       }
+       .infocard .controls {
+          border-top: 1px solid #e8e8e8;
+          padding: 5px;
+          @apply(--layout-horizontal);
+          @apply(--layout-justified);
+          @apply(--layout-center);
+       }
 
       @media (max-width: 600px) {
         .page-title {

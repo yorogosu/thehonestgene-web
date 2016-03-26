@@ -1,0 +1,329 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/google-chart/google-chart.html">
+
+<dom-module id="hg-imputation-page" >
+  <style include="shared-styles">
+    :host {
+         @apply(--layout-vertical); 
+    }
+    paper-progress {
+      --paper-progress-height:20px;
+    }
+    google-chart {
+        width:100%;
+        @apply(--layout-flex);
+    }
+    h2 {
+        text-align:center;
+    }
+    .buttons {
+        @apply(--layout-self-end);
+    }
+    .chart {
+        visibility: hidden;
+        min-height:300px;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+    }
+    section {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+    .chartContainer {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+    }
+  </style>
+  <template>
+      <section>
+        <paper-material elevation="1" class="infocard" id="infocard">
+            <div class="step">
+                <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
+            </div>
+            <div class="description">
+                <h2>2. Converting & Imputation</h2>
+                <p>
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                </p>
+                <div class="controls">
+                    <div>Progress: <span>{{state.task}} <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
+                    <div class="buttons">
+                        <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"><iron-icon icon="" ></iron-icon>Cancel</paper-button>
+                        <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Genotype</paper-button>
+                        <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Ancestry<iron-icon icon="arrow-forward"  ></iron-icon></paper-button>
+                    </div>
+                </div>
+            </div>
+        </paper-material>
+        <div id="chartcontainer" class="chartContainer">
+            <div class="chart">
+                <h2>Conversion stats</h2>
+                <google-chart id="conversionChart"  type="column" data="{{_getChartDataForConversion(isFinished,data)}}" options="{{_getChartOptionsForConversion(isFinished,data)}}"></google-chart>
+            </div>
+            <div class="chart">
+                <h2>Imputation stats</h2>
+                <google-chart id="imputationChart"  type="column" data="{{_getChartDataForImputation(isFinished,data)}}" options="{{_getChartOptionsForImputation(isFinished,data)}}"></google-chart>
+            </div>
+            <div class="chart">
+                    <h2>Imputation accuracy</h2>
+                    <google-chart id="pieChart" type="pie" data="{{_getChartDataForAccuracy(isFinished,data)}}" options="{{_getChartOptionsForAccuracy(isFinished,data)}}"></google-chart>
+            </div>
+         </div>
+       </section>
+  </template>
+  <script>
+  (function() {
+      
+    var emptyChartOptionsForConversion = {
+        bar: { groupWidth: '75%' },
+        title: "Imputation is running...",
+        isStacked: 'percent',
+        colors: ['#ccc','#ccc','#ccc'],
+        enableInteractivity:false,
+        hAxis: {
+            textStyle: {color:'#ccc'}
+        },
+        vAxis: {
+            textStyle: {color:'#ccc'},
+            title: '% of SNPs',
+            titleTextStyle: {
+                color: '#ccc'
+            }
+        },
+    } 
+    
+    var emptyChartOptionsForImputation = {
+        title: "Imputation is running...",
+        colors: ['#ccc'],
+        enableInteractivity:false,
+        hAxis: {
+            textStyle: {color:'#ccc'}
+        },
+        vAxis: {
+            textStyle: {color:'#ccc'},
+            title: '# of SNPs',
+            titleTextStyle: {
+                color: '#ccc'
+            }
+        },
+    }
+    
+    var generateEmptyChartDataForConversion = function() {
+        var data = [['Chr', 'Parsed', 'Not found', 'Unknown']];
+        for (var i =0;i<23;i++) {
+            data.push(['Chr'+i,20695,5000,500])
+        }
+        return data;
+    }
+    
+     var generateEmptyChartDataForImputation= function() {
+        var data = [['Chr', 'Imputed SNPs']];
+        for (var i =0;i<23;i++) {
+            data.push(['Chr'+i,5])
+        }
+        return data;
+    }
+    var emptyChartDataForImputation = generateEmptyChartDataForImputation();
+    var emptyChartDataForConversion = generateEmptyChartDataForConversion();
+      
+    Polymer({
+      is: 'hg-imputation-page',
+      
+      behaviors: [  Polymer.NeonAnimatableBehavior, Polymer.IronResizableBehavior, ReduxBehavior ],
+
+      properties: {
+        animationConfig: {
+            value: function() {
+              return {
+                'entry': [
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.infocard
+                },
+                {
+                    name: 'fade-in-animation',
+                    node: this.$.chartcontainer,
+                }],
+                'exit': [
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.infocard
+                },
+                {
+                    name: 'fade-out-animation',
+                    node: this.$.chartcontainer,
+                }],
+              };
+            },
+        }, 
+        data: {
+          type:Object,
+          statePath: 'imputationStep.data'  
+        },
+        state: {
+          type: String,
+          statePath: 'imputationStep.state'
+        },
+        isFinished: {
+            type: Boolean,
+            computed:'_isFinished(state.state)'
+        }
+        
+      },
+      listeners: {
+          'iron-resize': '_onIronResize',
+          'google-chart-render':"_onRenderChart",
+        },
+      _isFinished: function(state) {
+          return state === 'FINISHED';
+      },
+      _getChartOptionsForConversion: function(isFinished,data) {
+          if (!isFinished|| data === null) {
+              return emptyChartOptionsForConversion;
+          }
+          return {
+            title: data.convert.total_num_parsed_snps + ' SNPs parsed',
+            bar: { groupWidth: '75%' },
+            isStacked: 'percent',
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+          }
+      },
+      _getChartDataForConversion: function(isFinished,data) {
+          if (!isFinished || data === null) {
+              return emptyChartDataForConversion;
+          }
+        var chrStats =  data.convert.chr_stats;
+        var chartData =  [];
+        var header = ['Chr', 'Parsed', 'Not found', 'Unknown'];
+        chartData.push(header);
+        for (var chr in chrStats) {
+            var chrStat = chrStats[chr];
+            chartData.push([chr,chrStat['num_parsed_ok'],chrStat['num_not_found'],chrStat['num_misunderstood']])
+        }
+        return chartData;
+      },
+      _getChartDataForImputation: function(isFinished,data) {
+        if (!isFinished || data === null) {
+              return emptyChartDataForImputation;
+        } 
+        var chrStats =  data.imputation.chr_stats;
+        var chartData =  [];
+        var header = ['Chr', 'Imputed SNPs'];
+        chartData.push(header);
+        for (var chr in chrStats) {
+            var chrStat = chrStats[chr];
+            chartData.push([chr,chrStat])
+        }
+        return chartData; 
+      },
+      _getChartOptionsForImputation: function(isFinished,data) {
+           if (!isFinished|| data === null) {
+              return emptyChartOptionsForImputation;
+          }
+          return {
+            title: data.imputation.num_imputed_snps + ' SNPs imputed',
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+          }
+      },
+      _getNextBtnVisibility: function(isFinished) {
+          return isFinished ? 'visible' : 'hidden';
+      },
+     _getChartDataForAccuracy: function(isFinished,data) {
+        var pieData = [['accuracy', '%']];
+        if (!isFinished || data === null) {
+              pieData.push(['r2',0.5])
+              pieData.push(['incorrect',0.5])
+              
+        }
+        else {
+            var r2 =  this._getRoundedR2Pred(data.imputation.pred_r2);
+            pieData.push(['r2',r2]);
+            pieData.push(['incorrect',1-r2])
+        }
+        return pieData;
+        
+      },
+      _getRoundedR2Pred: function(r2) {
+        return Math.round(r2*100)/100  
+      },
+      _getChartOptionsForAccuracy: function(isFinished,data) {
+           if (!isFinished|| data === null) {
+              return  {
+                title: 'Imputation is running...',
+                pieHole:0.4,
+                legend:'none',
+                slices: {
+                  0:{color:'#ccc'},
+                  1:{color:'#ccc'}  
+                },
+                pieSliceText:'none',
+                enableInteractivity:false,
+                theme:'maximized',
+              }
+          }
+          var r2 = this._getRoundedR2Pred(data.imputation.pred_r2);
+          return {
+              
+            title: 'r2 Imputation Accuracy: ' + r2+ ' ('+r2*100+' %)',
+            pieHole:0.4,
+            legend:'none',
+            pieSliceText:'none',
+            enableInteractivity:false,
+            slices: {
+                1:{color:'#ccc'},
+            },
+            animation:{
+                duration: 1000,
+                easing: 'out',
+                startup: true,
+            },
+            theme:'maximized',
+          }
+      },
+    _onPreviousBtnClick: function() {
+         this.dispatch({type:'CHANGE_STEP',backward:true});
+     },
+     _onNextBtnClick: function() {
+         this.dispatch({type:'CHANGE_STEP'});
+     },
+     _onCancelBtnClick: function() {
+         
+     },
+     _onRenderChart: function(e) {
+         if (Polymer.dom(this).classList.contains('iron-selected')) {
+             let chart = e.srcElement;
+             chart.style.visibility = 'visible';
+         }
+     },
+      _onIronResize: function() {
+          if (Polymer.dom(this).classList.contains('iron-selected')) {
+            this.debounce('redraw', function () {
+                this.$.pieChart.drawChart();
+                this.$.imputationChart.drawChart();
+                this.$.conversionChart.drawChart();
+            });
+          }
+          
+       }
+    });
+  })();
+  </script>
+</dom-module>
