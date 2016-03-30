@@ -153,34 +153,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             value: '/'
           },
+          id: {
+            type: String,
+            statePath: 'id',  
+          },
           file: {
             type: Object,
             value: function() {return null;},
-            statePath: 'genotypeStep.fileUpload.genotypeFile',
-            observer: '_displayFile'
+            statePath: function(state) {
+                if (!state.id)
+                   return;
+                return state.analyses[state.id].genotypeStep.fileUpload.genotypeFile;
+            },
+            observer: '_displayFile',
           },
           isFileSelected: {
             type: Boolean,
-            computed: '_isFileSelected(file)'
+            computed: '_isFileSelected(file)',
           },
-           isFileValid: {
+          isFileValid: {
              type: Boolean,
              //TODO make a computed variable  
              value:true
-           },
+          },
           percentageUploaded: {
             type: Number,
-            computed: '_calculatePercentageUploaded(progress)'
+            computed: '_calculatePercentageUploaded(progress)',
           },
           progress: {
             type: Object,
             value: function() {return null;},
-            statePath: 'genotypeStep.fileUpload.progress'
+            statePath: function(state) { if (state.id) return state.analyses[state.id].genotypeStep.fileUpload.progress },
+            //statePath: 'genotypeStep.fileUpload.progress'
           }, 
           uploadState: {
             type: Object,
             value: function() { return null;},
-            statePath: 'genotypeStep.fileUpload.uploadState',
+            statePath: function(state) { if (state.id) return state.analyses[state.id].genotypeStep.fileUpload.uploadState },
+            //statePath: 'genotypeStep.fileUpload.uploadState',
             observer: '_updateUploadState'
           }
         },
@@ -193,13 +203,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           selectFile: function(file) {
             return { 
               type: 'SELECT_FILE_TO_UPLOAD',
-              file:file
+              file:file,
+              id:this.id,
             };
           },
           uploadFile: function(file) {
               return {
                   type: 'UPLOAD_GENOTYPE',
-                  file:file
+                  file:file,
+                  id: this.id,
               }
           }
         },

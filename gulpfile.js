@@ -26,7 +26,7 @@ var glob = require('glob-all');
 var historyApiFallback = require('connect-history-api-fallback');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
-var proxy = require('proxy-middleware'); 
+var proxyMiddleware = require('http-proxy-middleware');
 var url = require('url');
 var ensureFiles = require('./tasks/ensure-files.js');
 // var ghPages = require('gulp-gh-pages');
@@ -229,8 +229,44 @@ gulp.task('clean', function() {
   return del(['.tmp', dist()]);
 });
 
-var proxyOptions = url.parse('http://localhost:8000/');
+
+/**
+ * Context matching: decide which path(s) should be proxied. (wildcards supported)
+ **/
+var context = ['/api','/stomp'];
+
+/**
+ * Proxy options
+ */
+var options = {
+  // hostname to the target server
+  target: 'http://localhost:8000/',
+  pathRewrite: {'^/api':''},
+
+  // set correct host headers for name-based virtual hosted sites
+  changeOrigin: true,
+
+  // enable websocket proxying
+  ws: true,
+  // re-target based on the request's host header and/or path
+  proxyTable: {
+    '/stomp'         : 'http://localhost:15674/',  // host + path
+    '/api'                      : 'http://localhost:8000/'   // path only
+  },
+  // control logging
+  logLevel: 'silent',
+};
+
+/**
+ * Create the proxy middleware, so it can be used in a server.
+ */
+var proxy = proxyMiddleware(context, options);
+
+/*var proxyOptions = url.parse('http://localhost:8000/');
 proxyOptions.route = '/api';
+
+var proxyStompOptions = url.parse('http://localhost:15674/stomp/');
+proxyStompOptions.route = '/stomp';*/
 
 // Watch files for changes & reload
 gulp.task('serve', ['styles','js'], function() {
@@ -252,7 +288,7 @@ gulp.task('serve', ['styles','js'], function() {
     // https: true,
     server: {
       baseDir: ['.tmp', 'app'],
-      middleware: [historyApiFallback(),proxy(proxyOptions)],
+      middleware: [historyApiFallback(),proxy],
     }
   });
 
@@ -281,7 +317,7 @@ gulp.task('serve:dist', ['default'], function() {
     //       will present a certificate warning in the browser.
     // https: true,
     server: dist(),
-    middleware: [historyApiFallback(),proxy(proxyOptions)]
+    middleware: [historyApiFallback(),proxy]
   });
 });
 

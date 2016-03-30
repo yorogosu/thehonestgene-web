@@ -206,6 +206,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 'entry2': [{
                     name: 'scale-up-animation',
                     node: this.$.infocard
+                },{
+                    name: 'fade-in-animation',
+                    node: this,
                 }
                 ],
                 'exit': [{
@@ -222,7 +225,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     {
                         name: 'scale-down-animation',
                         node: this.$.infocard
-                    }
+                    },
+                {
+                    name: 'fade-out-animation',
+                    node: this,
+                },
                 ]
               };
             }
@@ -252,7 +259,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         state: {
             type:Object,
-            statePath: 'genotypeStep.uploadState.state'
+            statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.uploadState.state : undefined}
         },
         isFinished: {
             type: Boolean,

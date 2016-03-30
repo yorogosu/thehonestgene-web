@@ -82,19 +82,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
         <!-- Main Content -->
         <div class="fit layout vertical content">
-          <section class="wizard">
+          <section class="wizard" hidden$="{{isStartPage(route)}}">
             <timeu-wizard steps='["Genotype","Imputation","Ancestry","Predictions"]' step="{{currentStepIx}}"></timeu-wizard>
           </section> 
           <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" >
+            <hg-start-page data-route="start"></hg-start-page>
             <hg-genotype-page data-route="genotype"></hg-genotype-page>
             <hg-imputation-page data-route="imputation"></hg-imputation-page>
             <hg-ancestry-page data-route="ancestry"></hg-ancestry-page>
             <hg-predictions-page data-route="predictions"></hg-predictions-page>
           </neon-animated-pages>
-         <!-- <footer class="footer">
-              <paper-button id="previousBtn" on-tap="onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Previous</paper-button>
-              <paper-button id="nextBtn" on-tap="onNextBtnClick">Next<iron-icon icon="arrow-forward" ></iron-icon></paper-button>
-          </footer>-->
         </div>
       </paper-header-panel>
     <paper-toast id="toast">

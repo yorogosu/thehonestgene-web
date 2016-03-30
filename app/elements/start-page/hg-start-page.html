@@ -1,0 +1,331 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="../hg-analysis-card/hg-analysis-card.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+
+<dom-module id="hg-start-page">
+    <style include="shared-styles iron-flex iron-flex-alignment iron-positioning">
+        :host {
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
+        }
+        
+        .options {
+            @apply(--layout-flex);
+            @apply(--layout-horizontal);
+            @apply(--layout-around-justified);
+            @apply(--layout-center);
+        }
+        
+        .container {}
+        
+        .upload_icon {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .sub_section {
+            @apply(--layout-flex);
+            @apply(--layout-around-justified);
+            @apply(--layout-horizontal);
+        }
+        
+        .card {
+            width: 250px;
+            height: 250px;
+            @apply(--layout-center-center);
+            @apply(--layout-vertical);
+        }
+        
+        paper-button {
+        }  
+        
+    
+        
+        .divider {
+           border-left: 1px solid var(--divider-color);
+           width: 1px;
+           position:relative;
+        }
+        .divider span {
+            position:absolute;
+            top:50%;
+            left:-1px;
+            left: -7px;
+            background-color: #fff;
+            color: var(--secondary-text-color);
+        }
+        .started_btn {
+           background-color: var(--paper-green-500);
+            color: white;
+            width:250px;
+        }
+         .yellow-button {
+            text-transform: none;
+            color: #eeff41;
+        }
+        hg-analysis-card {
+            margin:10px;
+        }
+        .section {
+            width:49%;
+        }
+        .section h2 {
+            text-align:center;
+        }
+        @media (max-width: 600px) {
+            h1.paper-font-display1 {
+                font-size: 24px;
+            }
+            .options {
+                @apply(--layout-flex);
+                @apply(--layout-vertical);
+                @apply(--layout-center-justified);
+            }
+            .container {}
+        }
+    </style>
+    <template>
+        <h1>Welcome<span hidden$="{{!hasData}}"> back</span> to TheHonestGene</h1>
+        <p>
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <section class="sub_section">
+            <div class="layout vertical section">
+                <h2>View existing predictions</h2>
+                <div class="layout vertical center-justified flex">
+                    <div class="layout wrap horizontal">
+                    <template is="dom-repeat" items="{{_toArray(analyses)}}"on-dom-change="_cardsRendered">
+                        <hg-analysis-card data-id$="{{item.name}}" data="{{_transformForCard(item)}}" on-delete-analysis="_deleteAnalysis" on-view-analysis="_viewAnalysis"></hg-analysis-card>
+                     </template>
+                     </div>
+                 </div>
+            </div>
+            <div class="divider">
+                <span>or</span>
+            </div>
+            <div class="layout vertical section">
+                <h2>Start new prediction</h2>
+                <div class="layout vertical center-justified center flex">
+                    <paper-button id="startedBtn" class="started_btn" raised on-tap="_showTermsAndConsent">GET STARTED</paper-button>
+                 </div>
+            </div>
+        </section>
+      <paper-dialog id="consentDialog" on-iron-overlay-closed="_closeConsentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Terms and Consent</h2>
+        <paper-dialog-scrollable >
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </paper-dialog-scrollable>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Decline</paper-button>
+            <paper-button dialog-confirm autofocus>Accept</paper-button>
+        </div>
+    </paper-dialog>
+    <paper-dialog id="deleteDialog" on-iron-overlay-closed="_closeDeleteDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Delete analysis?</h2>
+        <div>
+            Do you really want to delete the analysis?
+        </div>
+        <div class="buttons">
+            <paper-button dialog-dismiss autofocus>Cancel</paper-button>
+            <paper-button dialog-confirm raised>Delete</paper-button>
+        </div>
+    </paper-dialog>
+    <iron-ajax id="idRequester" url="/api/id" handle-as="json" last-error="{{lastError}}" method="POST" on-response="_handleGenerateIdResponse"></iron-ajax>
+    <paper-toast id="toast1" duration="0" text="{{lastError.error}}" opened="{{_hasError(lastError)}}">
+        <paper-button onclick="toast1.toggle()" class="yellow-button">Close now!</paper-button>
+    </paper-toast>
+    </template>
+    <script>
+        (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-start-page',
+        behaviors: [
+          Polymer.NeonAnimatableBehavior, ReduxBehavior
+        ],
+        properties: {
+          hasData: {
+              type:Boolean,
+              computed: '_hasData(analyses)',
+          },
+          analyses: {
+              type: Object,
+              statePath: 'analyses',
+          },
+          animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                    name:'fade-in-animation',
+                    node: this.$.startedBtn,
+                },{
+                   name: 'cascaded-animation',
+                   animation: 'transform-animation',
+                   transformFrom: 'translateY(60vh)',
+                },{
+                    name: 'fade-in-animation',
+                    node: this, 
+                },{
+                    name: 'transform-animation',
+                    transformFrom: 'translateY(-60vh)',
+                }],
+                'exit': [{
+                    name:'fade-out-animation',
+                    node: this.$.startedBtn,
+                },
+                {
+                   name: 'cascaded-animation',
+                   animation: 'transform-animation',
+                   transformTo: 'translateY(60vh)',
+                   timing: {delay: 100}
+                },{
+                    name: 'fade-out-animation',
+                    node: this,
+                },
+                {
+                    name: 'transform-animation',
+                    transformTo: 'translateY(-60vh)',
+                }]
+              };
+            }
+          }
+        },
+        actions: {
+            startNewAnalysis: function(id) {
+                return {
+                    type:'START_NEW_ANALYSIS',
+                    id:id,
+                    date: Date.now(),
+                }
+            },
+            loadAnalysis: function(id)  {
+                return {
+                    type: 'LOAD_ANALYSIS',
+                    id,
+                }
+            },
+            nextpage: function() {
+                return {
+                    type: 'CHANGE_STEP',
+                }
+            },
+            deleteAnalysis: function(id) {
+                return {
+                    type:'DELETE_ANALYSIS',
+                    id:id,
+                } 
+            },
+        },
+        _toArray: function(obj) {
+            return Object.keys(obj).map(function(key) {
+                return {
+                    name: key,
+                    value: obj[key]
+                };
+            });
+        },
+        _computeDaysPassed: function(date) {
+          return "2 days ago";  
+        },
+        _hasData: function(analyses)  {
+           return analyses !== null;
+        },
+        _showTermsAndConsent: function() {
+           this.$.consentDialog.open(); 
+        },
+        _closeConsentDialog: function(e) {
+            if (e.detail.confirmed) {
+                this.$.idRequester.generateRequest();
+            }
+        },
+        _handleGenerateIdResponse: function(e) {
+            this.dispatch('startNewAnalysis',this.$.idRequester.lastResponse.id);
+            this.animationConfig.exit[0].name = 'scale-down-animation';
+            let cards = this._getNodesForCascade();
+            this.animationConfig.exit[1].nodes = cards;
+            this.animationConfig.entry[1].nodes = cards;
+            delete this.animationConfig.exit[3].node;
+            delete this.animationConfig.entry[3].node;
+            this.async(()=>this.dispatch('nextpage'));
+        },
+        _transformForCard: function(analysis) {
+            let item = analysis.value;
+            let id = analysis.name;
+            let genotype = null;
+            if (item.genotypeStep.data !== null) {
+                genotype = item.genotypeStep.data.genotype !== null ? item.genotypeStep.data.genotype : 'N/A';
+            }
+            let imputation = item.imputationStep.state.state === 'FINISHED';
+            let ancestry = null;
+            if (item.ancestryStep.data !== null) {
+                ancestry = item.ancestryStep.isEuropean;
+            }
+            let predictions = [];
+            if (Object.keys(item.riskPredictionStep.runningAnalysis).length) {
+                predictions = [...Object.keys(item.riskPredictionStep.runningAnalysis)];
+            }
+            return {date:item.date,genotype,imputation,ancestry,predictions,id}
+        },
+        _deleteAnalysis: function(e) {
+            this.$.deleteDialog.analysisId =e.detail;
+            this.$.deleteDialog.open();
+        },
+        _closeDeleteDialog: function(e) {
+            if (e.detail.confirmed) {
+                // TODO animate it out
+                this.animationConfig.exit[0].name = 'fade-out-animation';
+                let id = this.$.deleteDialog.analysisId;
+                let card = this.$$('hg-analysis-card[data-id="'+id+'"]');
+                card.addEventListener('neon-animation-finish',() =>{
+                    this.dispatch('deleteAnalysis',id);
+                    delete this.$.deleteDialog.analysisId;
+                }) ;
+                card.animate();
+            }
+        },
+        _viewAnalysis: function(e) {
+            this.animationConfig.exit[0].transForm = 'fade-out-animation';
+            let target = e.currentTarget;
+            let nodesForCascade = this.animationConfig.exit[1].nodes.filter((it)=>it !== target);
+            this.animationConfig.exit[1].nodes = nodesForCascade;
+            this.animationConfig.entry[1].nodes = nodesForCascade;
+            this.animationConfig.exit[3].node = target;
+            this.animationConfig.entry[3].node = target;
+            this.dispatch('loadAnalysis',e.detail);
+        },
+        _hasError: function(lastError) {
+            return lastError !== null;
+        },
+        _getNodesForCascade: function() {
+            var nodesToScale = [];
+            var cards = Polymer.dom(this.root).querySelectorAll('hg-analysis-card');
+            for (var node, index = 0; node = cards[index]; index++) {
+                nodesToScale.push(node);
+            }
+            return nodesToScale;
+        },
+        _cardsRendered: function() {
+            let cards = this._getNodesForCascade();
+            this.animationConfig.exit[1].nodes = cards;
+            this.animationConfig.entry[1].nodes = cards;
+        }
+
+       
+      });
+    })();
+    </script>
+</dom-module>

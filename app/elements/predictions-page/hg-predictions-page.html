@@ -134,7 +134,7 @@
           },
           traits: {
               type: Array,
-              statePath:'riskPredictionStep.traits',
+              statePath:'traits',
           }, 
           isSelectedTraits : {
               type: Boolean,
@@ -144,12 +144,12 @@
           selectedTraits: {
               type: Object,
               value: function() { return {};},
-              statePath: 'riskPredictionStep.selectedTraits',
+              statePath: function(state){ return state.id ? state.analyses[state.id].riskPredictionStep.selectedTraits:undefined} 
           },
           runningTraits: {
               type: Object,
               value: function() { return {};},
-              statePath: 'riskPredictionStep.runningAnalysis',
+              statePath: function(state){ return state.id ? state.analyses[state.id].riskPredictionStep.runningAnalysis:undefined}
           }
         },
         listeners: {
@@ -161,6 +161,7 @@
                     type: 'SELECT_TRAIT',
                     name:name,
                     isChecked: isChecked,
+                    id: this.getState().id,
                     
                 };
             },
@@ -168,6 +169,7 @@
                 return {
                     type: 'START_PREDICTION',
                     traits: traits,
+                    id: this.getState().id,
                 }
             }
           },

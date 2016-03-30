@@ -1,0 +1,127 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../bower_components/moment-element/moment-element.html">
+
+
+
+<dom-module id="hg-analysis-card">
+  <style>
+    :host {
+      display: block;
+    }
+    paper-card.white {
+            --paper-card-background-color: #fff;
+    }
+    .card-content div {
+        margin:5px;
+    }
+    
+    .check.ok {
+        color:green;
+        font-weight:bold;
+    }
+    .check.notok {
+        color:#ccc;
+    }
+    .card-content iron-icon {
+        margin-right:10px;
+    }
+    
+  </style>
+  <template>
+      <paper-card heading="{{_computeDaysPassed(data.date)}}" class="white">
+        <div class="card-content">
+            <div>
+                <span>Date:</span>
+                <span><moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element></span>
+            </div>
+            <div>
+                <iron-icon class$="check {{_computeCheckClass(data.imputation)}}"  icon="icons:done"></iron-icon><span>Genotype</span> <span>[{{data.genotype}}]</span>
+            </div>
+            <div>
+                <iron-icon class$="check {{_computeCheckClass(data.imputation)}}" icon="icons:done"></iron-icon><span>Imputation</span>
+            </div>
+            <div>
+                <iron-icon class$="check {{_computeCheckClass(data.imputation)}}" icon="icons:done"></iron-icon><span>Ancestry</span>
+            </div>
+            <div>
+                <span>Predictions:</span>
+                <span>{{_getPredictions(data.predictions)}}</span>
+            </div>
+        </div>
+        <div class="card-actions">
+            <paper-button on-tap="_clickView">View</paper-button>
+            <paper-button on-tap="_clickDelete">Delete</paper-button>
+        </div>
+    </paper-card>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'hg-analysis-card',
+    behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+    ],
+    properties: {
+        data: {
+            type:Object,
+        },
+        animationConfig: {
+            value: function() {
+                return {
+                // provided by neon-animation/animations/scale-down-animation.html
+                name: 'scale-down-animation',
+                node: this
+                }
+            }
+            }
+    },
+    
+  listeners: {
+    // this event is fired when the animation finishes
+    'neon-animation-finish': '_onNeonAnimationFinish'
+  },
+  animate: function() {
+    // run scale-down-animation
+    this.playAnimation();
+  },
+  _onNeonAnimationFinish: function() {
+    console.log('animation done!');
+  },
+    _computeDaysPassed: function(date) {
+        return moment(date).fromNow();
+    },
+    _displayDate: function(date) {
+       return "19.02.2016";  
+    },
+    _clickView: function() {
+        this.fire('view-analysis',this.data.id);
+    },
+    _computeCheckClass: function(imputation) {
+       return imputation ? 'ok': 'notok';  
+    },
+    _clickDelete: function() {
+        this.fire('delete-analysis',this.data.id);
+    },
+    _getPredictions: function(predictions) {
+        if (!predictions) {
+            return "N/A";
+        }
+        return predictions.join(", ")
+    }
+  });
+})();
+</script>

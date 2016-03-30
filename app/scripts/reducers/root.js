@@ -1,7 +1,6 @@
-const steps = ['genotype','imputation','ancestry','predictions'];
+const steps = ['start','genotype','imputation','ancestry','predictions'];
 
-var genotypeSubStep = function(state, action) {
-    state = state || 'list';
+const genotypeSubStep = function(state='list', action) {
     switch (action.type) {
         case 'CHANGE_UPLOAD_PAGE':
             return action.page;
@@ -15,9 +14,10 @@ var genotypeSubStep = function(state, action) {
 
 
 
-var currentStep = function(state, action) {
-    state = state || 'genotype';
+const currentStep = function(state ='start', action) {
     switch (action.type) {
+        case 'LOAD_ANALYSIS':
+            return 'genotype'; 
         case 'CHANGE_CURRENT_STEP':
             return action.step;
         case 'CHANGE_STEP':
@@ -25,14 +25,12 @@ var currentStep = function(state, action) {
            if ((currentIndex == 0 && action.backward) || (currentIndex == 4 && !action.backward))
               return state;
            return steps[action.backward ? --currentIndex : ++currentIndex];
-            
         default:
             return state;
     }
 };
 
-var genotypeFile = function(state, action) {
-    state = state || null;
+const genotypeFile = function(state=null, action) {
     switch (action.type) {
         case 'SELECT_FILE_TO_UPLOAD':
             return action.file;
@@ -42,13 +40,12 @@ var genotypeFile = function(state, action) {
 };
 
 
-var fileUpload =  Redux.combineReducers({
+const fileUpload =  Redux.combineReducers({
     genotypeFile: genotypeFile,
 });
 
 
-var displayGenotypeData = function(state,action) {
-    state = state || null;
+const displayGenotypeData = function(state=null,action) {
     switch (action.type) {
         case 'GENOTYPE_UPLOAD_FINISHED':
             return action.data;
@@ -57,8 +54,7 @@ var displayGenotypeData = function(state,action) {
     }
 }
 
-var availableProviders = function(state,action) {
-    state = state || [];
+const availableProviders = function(state=[],action) {
     switch (action.type) {
         case 'LOAD_AVAILABLE_PROVIDERS':
             return action.data;
@@ -67,8 +63,7 @@ var availableProviders = function(state,action) {
     }
 }
 
-var selectedProviders = function(state,action) {
-    state = state || {};
+const selectedProviders = function(state={},action) {
     switch (action.type) {
         case 'RETRIEVE_CLOUD_GENOTYPES':
             var provider = action.provider;
@@ -89,8 +84,7 @@ var selectedProviders = function(state,action) {
     }
 }
 
-var currentProvider = function(state,action) {
-    state = state || null;
+const currentProvider = function(state=null,action) {
     switch (action.type) {
         case 'SELECT_PROVIDER':
         case 'DISPLAY_CLOUD_GENOTYPES':
@@ -100,15 +94,13 @@ var currentProvider = function(state,action) {
     }
 }
 
-var cloudUpload = Redux.combineReducers({
-    availableProviders: availableProviders,
+const cloudUpload = Redux.combineReducers({
     selectedProviders: selectedProviders,
     currentProvider: currentProvider  
 });
 
 
-var uploadState = function(state, action) {
-    state = state || {state:null,progress:0,error:null,genotypeId:null}
+const uploadState = function(state ={state:null,progress:0,error:null,genotypeId:null}, action) {
     switch (action.type ){
        case 'GENOTYPE_UPLOAD_FINISHED':
            return {state:'FINISHED',progress:100,error:null,genotypeId:action.id}
@@ -121,9 +113,24 @@ var uploadState = function(state, action) {
     }
 }
 
+const analysisId = function(state = null,action) {
+    switch (action.type) {
+        case 'LOAD_ANALYSIS':
+        case 'START_NEW_ANALYSIS':
+            return action.id;
+        case 'DELETE_ANALYSIS':
+            if (action.id === state) {
+                return null;
+            }
+            return state
+        default:
+            return state;
+    }
+}
 
 
-var genotypeStep = Redux.combineReducers({
+
+const genotypeStep = Redux.combineReducers({
     step:genotypeSubStep,
     fileUpload: fileUpload,
     cloudUpload: cloudUpload,
@@ -131,7 +138,7 @@ var genotypeStep = Redux.combineReducers({
     data: displayGenotypeData
 });
 
-var predictionData = function(state,action) {
+const predictionData = function(state =null,action) {
     switch (action.type) {
         case 'DISPLAY_PREDICTION_DATA':
             return action.data;
@@ -140,7 +147,7 @@ var predictionData = function(state,action) {
     }
 }
 
-var imputationData = function(state, action) {
+const imputationData = function(state=null, action) {
     switch (action.type) {
         case 'DISPLAY_IMPUTATION_DATA':
             return action.data;
@@ -149,7 +156,7 @@ var imputationData = function(state, action) {
     }
 };
 
-var runAnalysis = function(state, action, analysisType) {
+const runAnalysis = function(state = null, action, analysisType) {
     switch (action.type) {
         case 'RUN_ANALYSIS_STARTED':
             if (analysisType == action.analysisType) {
@@ -160,7 +167,7 @@ var runAnalysis = function(state, action, analysisType) {
     }
 };
 
-var ancestryData = function(state, action) {
+const ancestryData = function(state =null, action) {
     switch (action.type) {
         case 'DISPLAY_ANCESTRY_DATA':
             return action.data;
@@ -169,7 +176,7 @@ var ancestryData = function(state, action) {
     }
 };
 
-var riskpredictionData = function(state, action) {
+const riskpredictionData = function(state =null, action) {
     switch (action.type) {
         case 'DISPLAY_PREDICTION_DATA':
             return action.data;
@@ -178,16 +185,16 @@ var riskpredictionData = function(state, action) {
     }
 };
 
-var imputationStep = function(state, action) {
+const imputationStep = function(state, action) {
     return analysis(state, action, imputationData, 'imputation');
 };
 
-var ancestryStep = function(state, action) {
+const ancestryStep = function(state, action) {
     return analysis(state, action, ancestryData, 'ancestry');
 };
 
 
-var traitData = function(state,action) {
+const traits = function(state=[],action) {
     switch (action.type) {
         case 'LOAD_TRAITS_DATA':
           return action.traits;
@@ -196,7 +203,7 @@ var traitData = function(state,action) {
     }
 }
 
-var traitLoaded  = function(state,action) {
+const isTraitLoaded  = function(state=false,action) {
     switch (action.type) {
          case 'LOAD_TRAITS_DATA':
           return true;
@@ -205,7 +212,7 @@ var traitLoaded  = function(state,action) {
     }
 }
 
-var selectedTraits = function(state,action) {
+const selectedTraits = function(state={},action) {
     switch (action.type) {
         case 'SELECT_TRAIT':
             state = Object.assign({},state);
@@ -241,7 +248,7 @@ var runningSingleAnalysis = function(state,action) {
     
 }
 
-var runningAnalysis= function(state,action) {
+const runningAnalysis= function(state= {},action) {
     if ((action.analysisType && action.analysisType === 'riskprediction') || action.type === 'DISPLAY_PREDICTION_DATA' ) {
         state = Object.assign({},state);
         state[action.trait] = analysis(state[action.trait],action,predictionData,action.analysisType);
@@ -250,17 +257,13 @@ var runningAnalysis= function(state,action) {
 }
 
 
-var riskPredictionStep = function(state, action) {
-    state = state || { traits:null,isTraitLoaded:false,selectedTraits: {},runningAnalysis: {}};
-    return {
-        traits:traitData(state.traits,action),
-        isTraitLoaded:traitLoaded(state.isTraitLoaded,action),
-        selectedTraits: selectedTraits(state.selectedTraits,action),
-        runningAnalysis: runningAnalysis(state.runningAnalysis,action),
-    }
-};
+const riskPredictionStep = Redux.combineReducers({
+    selectedTraits,
+    runningAnalysis
+});
 
-var analysis = function(state, action, dataReducer, analysisType) {
+
+const analysis = function(state, action, dataReducer, analysisType) {
     state = state || { state: null, data: null, taskId: null };
     return {
         state: messageReducer(state.state, action, analysisType),
@@ -269,7 +272,7 @@ var analysis = function(state, action, dataReducer, analysisType) {
     }
 }
 
-var messageReducer = function(state, action, analysisType) {
+const messageReducer = function(state, action, analysisType) {
     state = state || { state: null, progress: null, task: null, analysisType: analysisType }
     switch (action.type) {
         case 'MESSAGE_RECEIVED':
@@ -291,10 +294,48 @@ var messageReducer = function(state, action, analysisType) {
     }
 };
 
-var rootReducer = Redux.combineReducers({
-    currentStep: currentStep,
+const analyses = function(state,action) {
+   state = state || {}
+   switch (action.type) {
+       case 'START_NEW_ANALYSIS':
+          state = {...state};
+          state[action.id] = singleAnalysis({},action);
+          return state;
+       case 'DELETE_ANALYSIS':
+          state = {...state};
+          delete state[action.id];
+          return state;
+       default:
+          if (action.id && action.id in state) {
+             state = {...state};
+             state[action.id] = singleAnalysis(state[action.id],action);
+          }
+          return state;
+   }
+};
+
+const createDate = function(state = null,action) {
+    switch (action.type) {
+        case 'START_NEW_ANALYSIS':
+            return action.date;
+        default:
+            return state;
+    }
+}
+
+const singleAnalysis = Redux.combineReducers({
+    date: createDate,
     genotypeStep: genotypeStep,
     imputationStep: imputationStep,
     ancestryStep: ancestryStep,
-    riskPredictionStep: riskPredictionStep
+    riskPredictionStep: riskPredictionStep,
+})
+
+const rootReducer = Redux.combineReducers({
+    id: analysisId,
+    availableProviders,
+    isTraitLoaded,
+    traits,
+    currentStep,
+    analyses,
 });

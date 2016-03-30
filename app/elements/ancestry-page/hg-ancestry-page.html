@@ -140,36 +140,28 @@
                 };
             },
           }, 
-          pc1: {
-              type:Number,
-              statePath: 'ancestryStep.data.pc1'
-          },
-          pc2: {
-              type:Number,
-              statePath: 'ancestryStep.data.pc2'
+          data: {
+              type:Object,
+              statePath: function(state){ return state.id ? state.analyses[state.id].ancestryStep.data:undefined}
           },
           state: {
             type: String,
-            statePath: 'ancestryStep.state'
+            statePath: function(state){ return state.id ? state.analyses[state.id].ancestryStep.state:undefined}
            },
            isFinished: {
               type: Boolean,
               computed:'_isFinished(state.state)'
           },
-          data: {
-            type: Object,
-            value: function() { return {};}
-          },
           options: {
             type: Object,
             value: function() { return emptyOptions;},
-            computed: '_computeOptions(pc1,pc2)'
+            computed: '_computeOptions(data.pc1,data.pc2)'
               
           },
           datasource : {
               type:Object,
               value: function() { return emptyDataSource;},
-              computed: '_computeDataSource(pc1,pc2)'
+              computed: '_computeDataSource(data.pc1,data.pc2)'
           }
         },
         listeners: {
@@ -207,7 +199,7 @@
            },
           _computeDataSource: function(pc1,pc2) {
               if (pc1 && pc2) {
-                return '/api/plotpcs?pc1='+pc1+'&pc2='+pc2;
+                return `/api/plotpcs?pc1=${pc1}&pc2=${pc2}`;
               }
               return emptyDataSource;
           },

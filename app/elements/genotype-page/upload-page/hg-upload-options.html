@@ -79,6 +79,8 @@
         properties: {
           animationConfig: {
             value: function() {
+              var cards = Polymer.dom(this.root).querySelectorAll('.card');
+              var cardsArray = Array.prototype.slice.call(cards);
               return {
                 'entry': [{
                   name: 'hero-animation',
@@ -92,6 +94,16 @@
                     name: 'fade-in-animation',
                     node: this.$.infocard,
                 }],
+                "entry2":[{
+                  name: 'cascaded-animation',
+                  animation: 'transform-animation',
+                  transformFrom: 'translateY(60vh)',
+                  nodes:cardsArray,
+                  timing: {delay: 100} 
+                },{
+                    name:'scale-up-animation',
+                    node:this.$.infocard,
+                }],
                 'exit': [{
                   name: 'hero-animation',
                   id: 'hero',
@@ -101,6 +113,15 @@
                   name: 'transform-animation',
                 },
                 {
+                    name: 'fade-out-animation',
+                    node: this.$.infocard,
+                }],
+                'exit2':[{
+                  name: 'cascaded-animation',
+                  animation: 'transform-animation',
+                  transformTo: 'translateY(60vh)',
+                  nodes:cardsArray,
+                },{
                     name: 'fade-out-animation',
                     node: this.$.infocard,
                 }]

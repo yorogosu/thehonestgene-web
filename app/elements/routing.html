@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     if (window.location.port === '') {  // if production
       page.base(app.baseUrl.replace(/\/$/, ''));
     }
+    
 
     // Middleware
     function scrollToTop(ctx, next) {
@@ -33,9 +34,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
     
     function updateRedux(ctx,next) {
-        var step = ctx.pathname;
+        var step = ctx.pathname.split('/')[1];
+        var id = ctx.params.id;
+        console.log(ctx);
+        if (!id) {
+            if ((step !== 'start' && step !== '/' && step !== '') || store.getState().currentStep !== 'start') {
+                store.dispatch({type:'CHANGE_CURRENT_STEP',step:'start'});
+                return;
+            }
+            next();
+        }
         if (steps.indexOf(step) !== -1 && store.getState().currentStep !== step) {
             store.dispatch({type:'CHANGE_CURRENT_STEP',step:step});
+            next();
         }
     }
     
@@ -44,49 +55,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
     
     store.subscribe(function(){
-       var state = store.getState();
-       var targetPage = state.currentStep;
-        if (state.genotypeStep.id) {
-            targetPage+='/'+state.genotypeStep.id;
+        var state = store.getState();
+        var targetPage = state.currentStep;
+        if (state.id) {
+            targetPage=targetPage+'/'+state.id;
         }
-        if (page)
-        page(targetPage);
+        targetPage = '/'+targetPage;
+        if (page && targetPage !== page.current) {
+            page(targetPage);
+        }
     });
 
     // Routes
-    page('*', scrollToTop, closeDrawer,updateRedux, function(ctx, next) {
+    page('*', scrollToTop, closeDrawer, function(ctx, next) {
       next();
     });
     
-    page('/', function() {
+    page('/',updateRedux, function() {
+      page.redirect('/start');
+    });
+    
+    page('/start',updateRedux, function() {
       setFocus(app.route);
     });
     
-    page(app.baseUrl, function() {
+    page('/start/:id?',updateRedux, function() {
       setFocus(app.route);
     });
     
-    page('/genotype/:id?', function(ctx) {
+    page('/genotype/:id', updateRedux, function(ctx) {
+        console.log(ctx);
       setFocus(app.route);
     });
     
-    page('/imputation/:id?', function(data) {
+    page('/imputation/:id',updateRedux, function(data) {
       setFocus(app.route);
     });
 
-    page('/ancestry/:id?', function(data) {
+    page('/ancestry/:id/', updateRedux,function(data) {
       setFocus(app.route);
     });
-    page('/predictions/:id?', function() {
+    page('/predictions/:id/', updateRedux, function() {
       setFocus(app.route);
     });
 
     // 404
     page('*', function() {
-      app.$.toast.text = 'Can\'t find: ' + window.location.href + '. Redirected you to Home Page';
-      app.$.toast.show();
+      app.displayError('Can\'t find: ' + window.location.href + '. Redirected you to Home Page');
       page.redirect(app.baseUrl);
     });
+    
+    
 
     // add #! before urls
     page({

@@ -5,6 +5,8 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
+var subscription;
+
 const wrapper = {
   client: null,
 
@@ -12,7 +14,7 @@ const wrapper = {
     var wr = this;
     return new Promise(function(resolve, reject) {
       // Do the usual XHR stuff
-      const ws = new SockJS('http://127.0.0.1:15674/stomp');
+      const ws = new SockJS('/stomp');
       wr.client = Stomp.over(ws);
       wr.client.heartbeat.outgoing = 0;
       wr.client.heartbeat.incoming = 0;
@@ -56,76 +58,78 @@ function parseJSON(response) {
   return response.json();
 }
 
-function uploadGeno(file) {
+function uploadGeno(file, id) {
   var data = new FormData();
   data.append('file', file);
-  return fetch('/api/genotype',
+  return fetch(`/api/genotype/${id}`,
     {method: 'POST', body: data}
   ).then(checkStatus)
     .then(parseJSON);
 }
 
 function startPrediction(id, trait) {
-  return fetch('/api/riskprediction/' + id + '/' + trait,
+  return fetch(`/api/riskprediction/${id}/${trait}`,
     {method: 'POST'}
   ).then(checkStatus)
     .then(parseJSON);
 }
 
-function transferGenotypeFromProvider(provider, id, accessToken) {
-  return fetch('/api/cloud/' + provider + '/genome/' + id,
+function transferGenotypeFromProvider(id, provider, genotypeId, accessToken) {
+  return fetch(`/api/cloud/${provider}/genome/${genotypeId}/${id}`,
     {method: 'POST', headers: {'ACCESS_TOKEN': accessToken}}
   ).then(checkStatus)
     .then(parseJSON);
 }
 
 function startImputation(id) {
-  return fetch('/api/imputation?id=' + id,
+  return fetch(`/api/imputation?id=${id}`,
     {method: 'POST'})
     .then(checkStatus)
     .then(parseJSON);
 }
 
 function startAncestry(id) {
-  return fetch('/api/ancestry?id=' + id,
+  return fetch(`/api/ancestry?id=${id}`,
     {method: 'POST'})
     .then(checkStatus)
     .then(parseJSON);
 }
 
 function startRiskprediction(id) {
-  return fetch('/api/riskprediction?id=' + id,
+  return fetch(`/api/riskprediction?id=${id}`,
     {method: 'POST'})
     .then(checkStatus)
     .then(parseJSON);
 }
 
 function loadImputationData(taskid) {
-  return fetch('/api/imputation?task_id=' + taskid+'&wait=1', {headers: headers})
+  return fetch(`/api/imputation?task_id=${taskid}&wait=1`, {headers: headers})
     .then(checkStatus)
     .then(parseJSON);
 }
 
 function loadRiskData(taskid) {
-  return fetch('/api/riskprediction?task_id=' + taskid+'&wait=1', {headers: headers})
+  return fetch(`/api/riskprediction?task_id=${taskid}&wait=1`, {headers: headers})
     .then(checkStatus)
     .then(parseJSON);
 }
 
 function loadAncestryData(taskid) {
-  return fetch('/api/ancestry?task_id=' + taskid+'&wait=1', {headers: headers})
+  return fetch(`/api/ancestry?task_id=${taskid}&wait=1`, {headers: headers})
     .then(checkStatus)
     .then(parseJSON);
 }
 
 function retrieveCloudGenotypes(provider, code) {
-  return fetch('/api/cloud/' + provider + '/token', {method: 'POST', headers: {CODE: code}})
+  return fetch(`/api/cloud/${provider}/token`, {method: 'POST', headers: {CODE: code}})
     .then(checkStatus)
     .then(parseJSON);
 }
 
-function loadTraits() {
-  return fetch('/api/traits', {headers: headers}).then(checkStatus).then(parseJSON);
+function generateNewAnalysisId() {
+  return fetch('/api/id/' , {method: 'POST'})
+    .then(checkStatus)
+    .then(parseJSON);
 }
 
 function loadAvailableProviders() {
@@ -138,12 +142,13 @@ function loadAvailableTraits() {
 
 function* uploadGenotype(action) {
   try {
-    yield effects.put(startGenotypeUpload());
-    const response = yield effects.call(uploadGeno, action.file);
-    yield effects.put(uploadGenotypeFinished(response.genotype, response.data));
+    let id = action.id;
+    yield effects.put(startGenotypeUpload(id));
+    const response = yield effects.call(uploadGeno, action.file, id);
+    yield effects.put(uploadGenotypeFinished(id, response.data));
   } catch (error) {
     console.log(error);
-    yield effects.put(genotypeUploadFailed(error));
+    yield effects.put(genotypeUploadFailed(error,id));
   }
 }
 
@@ -157,96 +162,100 @@ function* monitorStompEvents(channel) {
     var body = JSON.parse(message.body);
     switch (body.state) {
       case 'FINISHED':
-        yield effects.put(analysisFinished(body));
+        yield effects.put(analysisFinished(body,body.id));
         break;
       case 'ERROR':
-        yield effects.put(analysisFailed(body));
+        yield effects.put(analysisFailed(body,body.id));
       default:
-        yield effects.put(messageReceived(body));
+        yield effects.put(messageReceived(body,body.id));
     }
   }
 }
 
 function* watchWebSocket() {
   while (true) {
-    const action = yield effects.take('GENOTYPE_UPLOAD_FINISHED');
+    const action = yield effects.take(['START_NEW_ANALYSIS','LOAD_ANALYSIS']);
     try {
-      yield effects.apply(wrapper, wrapper.connect);
-      const subscription = wrapper.subscribe(action.id);
       if (subscription) {
-        yield effects.put(startAnalysis('imputation'));
-        yield effects.call(monitorStompEvents, createStompChannel(subscription))
+        subscription.subscription.unsubscribe();
+      }
+      yield effects.apply(wrapper, wrapper.connect);
+      subscription = wrapper.subscribe(action.id);
+      if (subscription) {
+        yield effects.fork(monitorStompEvents, createStompChannel(subscription));
+      }
+      else {
+        throw Error('could not subscribe to updates');
       }
     }
     catch (error) {
       console.log(error);
-      yield effects.put(subscribeToUpdatesFailed(error));
+      yield effects.put(subscribeToUpdatesFailed(error,id));
     }
   }
 }
 
-function* startRetrieveAnalysisData(analysisType,body) {
-    const id = yield effects.select(getTaskId, analysisType, body.data);
-    var loadDataFunc = null;
-    switch (analysisType) {
-      case 'imputation':
-        loadDataFunc = loadImputationData;
-        break;
-      case 'ancestry':
-        loadDataFunc = loadAncestryData;
-        break;
-      case 'riskprediction':
-        loadDataFunc = loadRiskData;
-        break;
-      default:
-        loadDataFunc = null;
-    }
-    if (loadDataFunc !== null) {
-      try {
-        const response = yield effects.call(loadDataFunc, id);
-        if (response.state != 'SUCCESS') {
-          throw new Error(analysisType + ' failed');
-        }
-        yield effects.put(displayAnalysisData(analysisType, response.data));
-        if (analysisType == 'imputation') {
-          yield effects.put(startAnalysis('ancestry'));
-        }
-        else if (analysisType == 'ancestry') {
-          const response = yield effects.call(loadTraits)
-          yield effects.put(displayTraitsData(response));
-        }
+function* startRetrieveAnalysisData(analysisType, body, id) {
+  const taskId = yield effects.select(getTaskId, analysisType, body.data,id);
+  var loadDataFunc = null;
+  switch (analysisType) {
+    case 'imputation':
+      loadDataFunc = loadImputationData;
+      break;
+    case 'ancestry':
+      loadDataFunc = loadAncestryData;
+      break;
+    case 'riskprediction':
+      loadDataFunc = loadRiskData;
+      break;
+    default:
+      loadDataFunc = null;
+  }
+  if (loadDataFunc !== null) {
+    try {
+      const response = yield effects.call(loadDataFunc, taskId);
+      if (response.state != 'SUCCESS') {
+        throw new Error(analysisType + ' failed');
       }
-      catch (error) {
-        yield effects.put(loadAnalysisDataFailed(analysisType, error));
+      yield effects.put(displayAnalysisData(analysisType, response.data, id));
+      if (analysisType == 'imputation') {
+        yield effects.put(startAnalysis('ancestry', id));
+      }
+      else if (analysisType == 'ancestry') {
+          
       }
     }
-}
-
-function* watchAnalysisDataReturned() {
-    
+    catch (error) {
+      yield effects.put(loadAnalysisDataFailed(analysisType, error, id));
+    }
+  }
 }
 
 function* watchFinishAnalysis() {
   while (true) {
-    const {analysisType, body} = yield effects.take('RUN_ANALYSIS_FINISHED');
-    yield effects.fork(startRetrieveAnalysisData,analysisType,body);
+    const {analysisType, body, id} = yield effects.take('RUN_ANALYSIS_FINISHED');
+    yield effects.fork(startRetrieveAnalysisData,analysisType,body, id);
   }
 }
 
 function* watchRetrieveOAuthToken() {
   while (true) {
-    const {provider, code} = yield effects.take('RETRIEVE_CLOUD_GENOTYPES');
+    const {provider, code, id} = yield effects.take('RETRIEVE_CLOUD_GENOTYPES');
     const response = yield effects.call(retrieveCloudGenotypes, provider, code);
-    yield effects.put(displayCloudGenotypes(provider, response.access_token, response.refresh_token, code, response.genotypes));
+    yield effects.put(displayCloudGenotypes(provider, response.access_token, response.refresh_token, code, response.genotypes, id));
   }
 }
 
 function* watchStartAnalysis() {
   while (true) {
-    const action = yield effects.take('RUN_ANALYSIS');
+    const action = yield effects.take(['RUN_ANALYSIS','GENOTYPE_UPLOAD_FINISHED']);
+    let analysisType = action.analysisType;
+    if (action.type === 'GENOTYPE_UPLOAD_FINISHED') {
+      analysisType = 'imputation';
+    }
     const id = yield effects.select(getGenotypeId);
     var analysisFunc = null;
-    switch (action.analysisType) {
+    switch (analysisType) {
       case 'imputation':
         analysisFunc = startImputation;
         break;
@@ -262,10 +271,10 @@ function* watchStartAnalysis() {
     if (analysisFunc !== null) {
       try {
         const response = yield effects.call(analysisFunc, id);
-        yield effects.put(analysisStarted(response.id, action.analysisType));
+        yield effects.put(analysisStarted(response.id, analysisType, id));
       }
       catch (error) {
-        yield effects.put(analysisFailed({error: error, analysisType: action.analysisType}));
+        yield effects.put(analysisFailed({error: error, analysisType}, id));
       }
     }
   }
@@ -279,11 +288,11 @@ function* watchStartPrediction() {
       let trait = traits[i];
       try {
         const response = yield effects.call(startPrediction, id, trait);
-        yield effects.put(analysisStarted(response.id, 'riskprediction', trait));
+        yield effects.put(analysisStarted(response.id, 'riskprediction', id, trait));
       }
       catch (error) {
         console.log(error);
-        yield effects.put(analysisFailed({error: error, analysisType: 'riskprediction', trait: trait}));
+        yield effects.put(analysisFailed({error: error, analysisType: 'riskprediction', trait: trait}, id));
       }
     }
   }
@@ -291,15 +300,15 @@ function* watchStartPrediction() {
 
 function* watchTransferGentoypeFromProvider() {
   while (true) {
-    const {provider, id} = yield effects.take('TRANSFER_GENOTYPE_FROM_PROVIDER');
+    const {provider, id, genotypeId} = yield effects.take('TRANSFER_GENOTYPE_FROM_PROVIDER');
     try {
-      const accessToken = yield effects.select(getAccessToken, provider);
-      yield effects.put(startGenotypeUpload());
-      const response = yield effects.call(transferGenotypeFromProvider, provider, id, accessToken);
-      yield effects.put(uploadGenotypeFinished(response.genotype, response.data));
+      const accessToken = yield effects.select(getAccessToken, provider,id);
+      yield effects.put(startGenotypeUpload(id));
+      const response = yield effects.call(transferGenotypeFromProvider, id, provider, genotypeId, accessToken);
+      yield effects.put(uploadGenotypeFinished(response.genotype, response.data, id));
     } catch (error) {
       console.log(error);
-      yield effects.put(genotypeUploadFailed(error));
+      yield effects.put(genotypeUploadFailed(error, id));
     }
   }
 }
@@ -308,6 +317,7 @@ function* watchLoadAvailableProviders() {
   const response = yield effects.call(loadAvailableProviders);
   yield effects.put(saveAailableProviders(response));
 }
+
 
 function* watchLoadAvailableTraits() {
   const response = yield effects.call(loadAvailableTraits);
@@ -321,8 +331,10 @@ function createStompChannel(subscription) {
   return channel;
 }
 
+
+
 function* rootSaga() {
-   yield [
+  yield [
     effects.fork(watchUploadGenotype),
     effects.fork(watchWebSocket),
     effects.fork(watchFinishAnalysis),
@@ -333,4 +345,4 @@ function* rootSaga() {
     effects.fork(watchLoadAvailableTraits),
     effects.fork(watchStartPrediction),
   ];
-}
+};

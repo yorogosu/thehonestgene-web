@@ -96,20 +96,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return { 
                 type: 'RETRIEVE_CLOUD_GENOTYPES',
                 code:code,
-                provider:provider
+                provider:provider,
+                id: this.id,
             };
           },
           transferGenotype: function(provider,id) {
               return {
                   type: 'TRANSFER_GENOTYPE_FROM_PROVIDER',
                   provider:provider,
-                  id:id
+                  id: this.id,
+                  genotypeId:id,
               }
           },
           selectProvider: function(provider) {
             return {
                 type: 'SELECT_PROVIDER',
                 provider:provider,
+                id: this.id,
             }  
           },
         },
@@ -135,16 +138,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             value: function() {
                 return []
             },
-            statePath:'genotypeStep.cloudUpload.availableProviders'
+            statePath:'availableProviders'
+          },
+          id: {
+            stype:String,
+            statePath: 'id',  
           },
           selectedProviders: {
             type:Object,
             value: function() {return {}},
-            statePath:'genotypeStep.cloudUpload.selectedProviders'
+            statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.cloudUpload.selectedProviders : {} }
+            //statePath:'genotypeStep.cloudUpload.selectedProviders'
           },
           currentProvider: {
             type: String,
-            statePath:'genotypeStep.cloudUpload.currentProvider',
+            statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.cloudUpload.currentProvider : null },
+            //statePath:'genotypeStep.cloudUpload.currentProvider',
             observer:'_changeCurrntProvider'
           },
           selectedProvider: {

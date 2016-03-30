@@ -26,8 +26,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <neon-animated-pages selected="[[route]]" id="gpages" attr-for-selected="route"  on-close-card="_onCardClick">
-      <hg-upload-options route="list" on-card-click="_onCardClick"></hg-upload-options>
+    <neon-animated-pages selected="[[_computeRoute(uploadState,route)]]" id="gpages" attr-for-selected="route"  on-close-card="_onCardClick">
+      <hg-upload-options route="list" id="list" on-card-click="_onCardClick"></hg-upload-options>
       <hg-file-upload-page route="file"></hg-file-upload-page>
       <hg-cloud-page route="cloud"></hg-cloud-page>
       <hg-genotype-info id="genotpyeInfo" route="info" numberofsnps="{{genotypeData.num_of_snps}}" 
@@ -52,21 +52,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 value: function() {
                    return {
                        'entry': [
-                        {animatable: this.$.genotpyeInfo, type: 'entry2'}
+                        {animatable: this.$.genotpyeInfo, type: 'entry2'},
+                        {animatable: this.$.list, type: 'entry2'}
                     ],
                     'exit': [
-                        {animatable: this.$.genotpyeInfo, type: 'exit2'}
+                        {animatable: this.$.genotpyeInfo, type: 'exit2'},
+                        {animatable: this.$.list, type: 'exit2'},
                     ]
                    }  
                 },
             },
           route: {
               type: String,
-              statePath: 'genotypeStep.step'
+              statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.step : 'list'} 
           },  
+          uploadState: {
+             type: String,
+             statePath: function(state) {return state.id ? state.analyses[state.id].genotypeStep.uploadState.state : null},
+          },
           genotypeData: {
             type: Object,
-            statePath: 'genotypeStep.data',
+            statePath: function(state) {return state.id ? state.analyses[state.id].genotypeStep.data : undefined},
             observer: '_updateGenotypeData'
           },
           dataForNumberOfSNPS: {
@@ -87,12 +93,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             changePage: function(page) {
                 return { 
                     type: 'CHANGE_UPLOAD_PAGE',
-                    page:page
+                    page:page,
+                    id: this.getState().id,
                 };
             }
           },
+          _computeRoute: function(state,route) {
+              if (!state) {
+                  return route;
+              }
+              return 'info';  
+          }, 
         _updateGenotypeData : function(data) {
-            if (data === null)
+            if (!data)
                return null;
             var annotations =  this._getAnnotationTypesFromData(data);
             var dataForNumberOfSNPS = [['Chr','# of SNPs']];

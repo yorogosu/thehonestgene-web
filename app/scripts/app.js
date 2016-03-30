@@ -8,7 +8,7 @@
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
-  app.route = 'genotype';
+  app.route = 'start';
   store.subscribe(function() {
      var step = store.getState().currentStep;
      app.route =  step;
@@ -82,5 +82,15 @@
   app.scrollPageToTop = function() {
     //document.getElementById('mainContainer').scrollTop = 0;
   };
+  
+  app.isStartPage = function(route)  {
+      return route === 'start';
+  };
+  app.displayError = function(msg) {
+      this.$.toast.text = msg;
+      this.$.toast.show();  
+  };
+  
+  app.addEventListener('display-error',(e)=>this.displayError(e.detail));
 
 })(document);
