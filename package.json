@@ -32,7 +32,6 @@
     "gulp-vulcanize": "^6.0.0",
     "http-proxy-middleware": "^0.13.0",
     "merge-stream": "^1.0.0",
-    "proxy-middleware": "^0.15.0",
     "require-dir": "^0.3.0",
     "rollup-plugin-babel": "^2.4.0",
     "run-sequence": "^1.0.2",
