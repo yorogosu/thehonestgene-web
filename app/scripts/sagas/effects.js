@@ -242,7 +242,7 @@ function* watchRetrieveOAuthToken() {
   while (true) {
     const {provider, code, id} = yield effects.take('RETRIEVE_CLOUD_GENOTYPES');
     const response = yield effects.call(retrieveCloudGenotypes, provider, code);
-    yield effects.put(displayCloudGenotypes(provider, response.access_token, response.refresh_token, code, response.genotypes, id));
+    yield effects.put(displayCloudGenotypes(provider, response.access_token, response.refresh_token, code, response.userInfo, id));
   }
 }
 

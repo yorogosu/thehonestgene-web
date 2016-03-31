@@ -161,14 +161,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               computed: '_getSelectedProvider(currentProvider)'
           },
           currentGenotypes: {
-              type: Array,
+              type: Object,
           }
         },
         _getGenotypesFromProvider: function(currentProvider) {
             if (currentProvider && this.selectedProviders[currentProvider]) {
-                return this.selectedProviders[currentProvider].genotypes;
+                return this.selectedProviders[currentProvider].userInfo;
             }
-            return [];
+            return {};
         },
         ready: function() {
           

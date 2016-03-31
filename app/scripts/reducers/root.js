@@ -77,7 +77,7 @@ const selectedProviders = function(state={},action) {
             state[provider].code = action.code;
             state[provider].accessToken = action.accessToken;
             state[provider].refreshToken = action.refreshToken;
-            state[provider].genotypes = action.genotypes;
+            state[provider].userInfo = action.userInfo;
             return state;
         default:
           return state;

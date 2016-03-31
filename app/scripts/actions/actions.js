@@ -57,15 +57,15 @@ const saveAvailableTraits = function(traits) {
   };
 };
 
-const displayCloudGenotypes = function(provider, accessToken, refreshToken, code, genotypes, id) {
+const displayCloudGenotypes = function(provider, accessToken, refreshToken, code, userInfo, id) {
   return {
     type: 'DISPLAY_CLOUD_GENOTYPES',
-    provider: provider,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    code: code,
-    genotypes: genotypes,
-    id: id,
+    provider,
+    accessToken,
+    refreshToken,
+    code,
+    userInfo,
+    id,
   };
 };
 

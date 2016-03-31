@@ -1,6 +1,4 @@
-
-
-initialState = undefined;
+var initialState = undefined;
 
 const createSagaMiddleware = ReduxSaga.default
 

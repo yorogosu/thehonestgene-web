@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="hg-cloud-genotype-card.html">
+
 
 <dom-module id="hg-cloud-detail">
     <style include="shared-styles">
@@ -44,25 +46,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             @apply(--layout-flex);
             @apply(--layout-vertical);
         }
-        
-        .genotype {
-            width: 300px;
-            height: 250px;
-            @apply(--layout-vertical);
-        }
-        
-        .genotype h2 {
-            @apply(--layout-flex);
-            text-align: center;
-            margin-top: 100px;
-        }
-        
-        .genotype paper-button {
-            @apply(--layout-self-end);
-            background: var(--paper-blue-500);
-            color: white;
-            margin: 10px;
-        }
     </style>
     <template>
         <section class="cloudpage"  id="detail">
@@ -82,11 +65,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
             </paper-material>
             <section class="detail" id="detail_content" >
-                <template is="dom-repeat" items="{{genotypes}}" on-dom-change="_genotypesRendered">
-                    <paper-material elavation="1" class="genotype">
-                        <h2>{{item.id}}</h2>
-                        <paper-button on-click="_selectGenotype" raised>Upload</paper-button>
-                    </paper-material>
+                <template is="dom-repeat" items="{{genotypes.profiles}}" on-dom-change="_genotypesRendered">
+                    <hg-cloud-genotype-card class="genotype" data="{{item}}" on-select="_selectGenotype"></hg-cloud-genotype-card>
                 </template>
             </section>
         </section>
@@ -143,7 +123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               type: Object,
           },
           genotypes: {
-              type: Array
+              type: Object,
           }
         },
         ready: function() {
@@ -153,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.fire('close-detail');
         },
         _selectGenotype: function(e) {
-          this.fire('select-genotype',e.model.item.id);  
+          this.fire('select-genotype',e.detail);  
         },
         _genotypesRendered: function() {
           var providers = Polymer.dom(this.root).querySelectorAll('.genotype');
