@@ -58,6 +58,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.0.3/sockjs.min.js"></script>
   <script src="https://api.23andme.com/res/js/ttam-0.3.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  
+  <!-- build:js scripts/redux.js -->
+  <script src="scripts/actions/actions.js"></script>
+  <script src="scripts/reducers/root.js"></script>
+  <script src="scripts/reducers/selectors.js"></script>
+  <script src="scripts/reducers/root.js"></script>
+  <script src="scripts/sagas/channel.js"></script>
+  <script src="scripts/sagas/effects.js"></script>
+  <script src="scripts/store/configureStore.js"></script>
+  <!-- endbuild -->
 
   <!-- Because this project uses vulcanize this should be your only html import
        in this file. All other imports should go in elements.html -->

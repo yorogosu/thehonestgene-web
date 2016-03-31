@@ -76,7 +76,7 @@ function startPrediction(id, trait) {
 
 function transferGenotypeFromProvider(id, provider, genotypeId, accessToken) {
   return fetch(`/api/cloud/${provider}/genome/${genotypeId}/${id}`,
-    {method: 'POST', headers: {'ACCESS_TOKEN': accessToken}}
+    {method: 'POST', headers: {'ACCESS-TOKEN': accessToken}}
   ).then(checkStatus)
     .then(parseJSON);
 }

@@ -176,7 +176,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         _onSelectProvider: function(e) {
             var provider = e.detail;
             if (!this.selectedProviders.hasOwnProperty(provider.name)) {
-                this._openOAuthWindow(provider.name,provider.oauthurl);
+                this._openOAuthWindow(provider.name,provider.tokenurl,provider.redirectUrl);
             } else {
                 this.dispatch('selectProvider',provider.name);
             } 
@@ -198,16 +198,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return null;
             var filteredProvider = this.providers.filter((provider)=>provider.name===currentProvider);
             if (filteredProvider.length > 0) {
-                return this.providers[0];
+                return filteredProvider[0];
             }
             return null;
         },
-        _openOAuthWindow: function(provider,oauturl) {
-            var win = window.open(oauturl, 'windowname1', 'width=800, height=600'); 
-            var REDIRECT = 'http://localhost:5000/receive_code/';
+        _openOAuthWindow: function(provider,tokenurl,redirectUrl) {
+            var win = window.open(tokenurl, 'windowname1', 'width=800, height=600'); 
             var pollTimer = window.setInterval(function() { 
                 try {
-                    if (win.document.URL.indexOf(REDIRECT) !== -1) {
+                    if (win.document.URL.indexOf(redirectUrl) !== -1) {
                         window.clearInterval(pollTimer);
                         var url = win.document.URL;
                         var code = this._gup(url, 'code');
