@@ -1,4 +1,4 @@
-const steps = ['start','genotype','imputation','ancestry','predictions'];
+const steps = ['genotype','imputation','ancestry','predictions'];
 
 const genotypeSubStep = function(state='list', action) {
     switch (action.type) {

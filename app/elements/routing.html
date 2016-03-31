@@ -36,7 +36,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     function updateRedux(ctx,next) {
         var step = ctx.pathname.split('/')[1];
         var id = ctx.params.id;
-        console.log(ctx);
         if (!id) {
             if ((step !== 'start' && step !== '/' && step !== '') || store.getState().currentStep !== 'start') {
                 store.dispatch({type:'CHANGE_CURRENT_STEP',step:'start'});
@@ -44,7 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             next();
         }
-        if (steps.indexOf(step) !== -1 && store.getState().currentStep !== step) {
+        if ((step === 'start' || steps.indexOf(step) !== -1) && store.getState().currentStep !== step) {
             store.dispatch({type:'CHANGE_CURRENT_STEP',step:step});
             next();
         }
@@ -84,7 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
     
     page('/genotype/:id', updateRedux, function(ctx) {
-        console.log(ctx);
       setFocus(app.route);
     });
     
