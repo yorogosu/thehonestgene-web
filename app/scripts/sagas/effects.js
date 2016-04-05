@@ -140,6 +140,16 @@ function loadAvailableTraits() {
   return fetch('/api/traits', {headers: headers}).then(checkStatus).then(parseJSON);
 }
 
+function doCancelAnalysis(analysisType, taskids) {
+  let promises = [];
+  for (let taskid of taskids) {
+    promises.push(fetch(`/api/${analysisType}/cancel/${taskid}`, {method: 'POST'})
+    .then(checkStatus)
+    .then(parseJSON));
+  }
+  return Promise.all(promises); 
+}
+
 function* uploadGenotype(action) {
   try {
     let id = action.id;
@@ -280,6 +290,28 @@ function* watchStartAnalysis() {
   }
 }
 
+function* cancelAnalysis(action) {
+  try {
+    let taskIds = [];
+    const taskid =  yield effects.select(getTaskId, action.analysisType,action.traits); 
+    if (taskid instanceof Array) {
+      taskIds = [...taskid];
+    }
+    else {
+      taskIds.push(taskid);
+    }
+    const response = yield effects.call(doCancelAnalysis, action.analysisType,taskIds);
+    yield effects.put(analysisCanceled(action.id,action.analysisType,action.traits));
+    
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function* watchCancelAnalysis() {
+  yield* ReduxSaga.takeEvery('CANCEL_ANALYSIS', cancelAnalysis);
+}
+
 function* watchStartPrediction() {
   while (true) {
     const {traits} = yield effects.take('START_PREDICTION');
@@ -335,6 +367,7 @@ function createStompChannel(subscription) {
 
 function* rootSaga() {
   yield [
+    effects.fork(watchCancelAnalysis),  
     effects.fork(watchUploadGenotype),
     effects.fork(watchWebSocket),
     effects.fork(watchFinishAnalysis),

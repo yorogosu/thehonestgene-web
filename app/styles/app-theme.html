@@ -25,15 +25,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     /* Application theme */
     
     :root {
-        --primary-text-color: #212121;
-        --primary-background-color: #B3E5FC;
-        --secondary-text-color: #727272;
-        --disabled-text-color: #BDBDBD;
-        --divider-color: #B6B6B6;
-        --primary-color: #03A9F4;
-        --light-primary-color: #B3E5FC;
-        --dark-primary-color: #0288D1;
-        --accent-color: #536DFE;
+        --primary-text-color: var(--paper-grey-900);
+        --primary-background-color: #ffffff;
+        --secondary-text-color: #737373;
+        --disabled-text-color: #9b9b9b;
+        --divider-color: #dbdbdb;
+        --primary-color: var(--paper-blue-500);
+        --light-primary-color: var(--paper-blue-100);
+        --dark-primary-color: var(--paper-blue-700);
+        --accent-color: var(--paper-pink-a200);
         --light-accent-color: var(--paper-pink-a100);
         --dark-accent-color: var(--paper-pink-a400);
         /* Components */
@@ -44,23 +44,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         /* paper-menu */
         --paper-menu-background-color: #fff;
         --menu-link-color: #111111;
-        /* paper-input */
-        --paper-input-container-color: rgba(255, 255, 255, 0.64);
-        --paper-input-container-focus-color: rgba(255, 255, 255, 1);
-        --paper-input-container-input-color: #fff;
     }
     /* General styles */
     
     body {
         @apply(--layout-fullbleed);
         @apply(--layout-vertical);
+        @apply(--paper-font-common-base);
     }
-
+    
+    timeu-wizard {
+        padding: 20px;
+    }
     
     .footer {
         @apply(--layout-horizontal);
         @apply(--layout-around-justified);
-        padding:20px;
+        padding: 20px;
     }
     
     .space {
@@ -151,7 +151,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
     
     #toast .toast-hide-button {
-        color: #eeff41;
+        color: var(--paper-yellow-500);
         margin: 10px;
     }
     
@@ -162,10 +162,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .content {
         max-width: 1280px;
         margin: 5px auto;
+        padding: 10px;
     }
-
-    
-    
     /* Breakpoints */
     /* Small */
     

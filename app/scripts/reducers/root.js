@@ -249,9 +249,27 @@ var runningSingleAnalysis = function(state,action) {
 }
 
 const runningAnalysis= function(state= {},action) {
-    if ((action.analysisType && action.analysisType === 'riskprediction') || action.type === 'DISPLAY_PREDICTION_DATA' ) {
-        state = Object.assign({},state);
-        state[action.trait] = analysis(state[action.trait],action,predictionData,action.analysisType);
+    if ((action.analysisType && action.analysisType === 'riskprediction') || action.type === 'DISPLAY_PREDICTION_DATA') {
+        if (action.trait) {
+            state = Object.assign({},state);
+            if (action.trait instanceof Array) {
+                for (let t of action.trait) {
+                    if (action.type === 'RUN_ANALYSIS_CANCELED') {
+                        delete state[t];
+                    }
+                    else {
+                        state[t] = analysis(state[t],action,predictionData,action.analysisType);
+                    }
+                }  
+            } else {
+                if (action.type === 'RUN_ANALYSIS_CANCELED') {
+                    delete state[action.trait];
+                }
+                else {
+                    state[action.trait] = analysis(state[action.trait],action,predictionData,action.analysisType);
+                }
+            }
+        }
     }
     return state;
 }

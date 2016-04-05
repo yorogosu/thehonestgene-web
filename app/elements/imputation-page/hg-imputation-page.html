@@ -52,9 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="description">
                 <h2>2. Converting & Imputation</h2>
-                <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
+                <p>Sometimes, information is missing from the genetic data of a particular individual due to limitations in the technology used for producing the data in the first place. Missing information can be thought of as gaps in an otherwise complete list of data points. Fortunately, it is fairly easy to fill in such gaps using other individuals as reference – individuals for which the complete data are available. This process is called genetic imputation. Our genetic prediction methods require genetic data that are denser than the data provided by the user and this is where imputation comes into play.</p>
                 <div class="controls">
                     <div>Progress: <span>{{state.task}} <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
                     <div class="buttons">
@@ -305,7 +303,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          this.dispatch({type:'CHANGE_STEP'});
      },
      _onCancelBtnClick: function() {
-         
+       let id = this.getState().id;
+       if (id) {
+         this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'imputation',id})
+       }  
      },
      _onRenderChart: function(e) {
          if (Polymer.dom(this).classList.contains('iron-selected')) {

@@ -11,10 +11,6 @@
         @apply(--layout-vertical);
         @apply(--layout-flex);
     }
-    hg-risk-card {
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
-    }
     paper-progress {
       --paper-progress-height:20px;
     }
@@ -35,14 +31,15 @@
         max-width:400px;
         max-height:445px;
     }
-    card-content {
-        
+    hg-risk-card {
+        margin-top:10px;
+        @apply(--layout-vertical);
     }
     
     .traitcardcontainer {
         @apply(--layout-horizontal);
         @apply(--layout-wrap);
-        @apply(--layout-justified);
+        @apply(--layout-around-justified);
     }
     iron-pages {
         padding:10px;
@@ -56,9 +53,9 @@
                 </div>
                 <div class="description">
                     <h2>4. Traits & Predictions</h2>
-                    <p>
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                    </p>
+                    <p>Genetic predictions typically include a preparatory step in which the algorithm is trained on a large dataset of individuals with known trait status. Predictions are then made for new individuals with available genetic data whose trait status is unknown.<br>
+For the time being, TheHonestGene offers predictions for three of the user’s traits: height, risk for diabetes and risk for schizophrenia. Because disease susceptibility is a sensitive piece of information, the user can opt out the corresponding predictions.<br>
+Our algorithm’s training step is carried out on summarized genetic and phenotypic data coming from large open-access databases like the GIANT Consortium, […] and […]. In the future, our platform will be extended to more traits contingent on public data availability.</p>
                     <div class="controls">
                         <div></div>
                         <div class="buttons">
@@ -186,11 +183,21 @@
               this.dispatch({type:'CHANGE_STEP'});
            },
            _onCancelBtnClick: function() {
-             
+             let id = this.getState().id;
+             if (id) {
+               const traits = this._getRunningPredictions(id);
+               this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'riskprediction',id,traits})
+               this.fire('display-toast',{'text':'Stopping risk prediction...'});
+              }
+                
            },
           _onIronResize: function() {
              
           },
+          _getRunningPredictions: function(id) {
+              return Object.keys(this.getState().analyses[id].riskPredictionStep.runningAnalysis);
+          },
+          
           _getAnalysis: function(name,runningTraits) {
              if (name in runningTraits) {
                  return runningTraits[name]; 

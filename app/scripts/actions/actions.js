@@ -148,3 +148,12 @@ const storeAnalysisId = function(id) {
     id,
   };
 };
+
+const analysisCanceled = function(id, analysisType, traits) {
+  return {
+    type: 'RUN_ANALYSIS_CANCELED',
+    id,
+    analysisType,
+    trait:traits,
+  }
+};

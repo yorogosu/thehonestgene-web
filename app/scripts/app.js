@@ -90,6 +90,9 @@
       this.$.toast.text = msg;
       this.$.toast.show();  
   };
+  app.onDisplayToastMessage = function(e) {
+    this.displayError(e.detail.text);  
+  };
   
   app.addEventListener('display-error',(e)=>this.displayError(e.detail));
 

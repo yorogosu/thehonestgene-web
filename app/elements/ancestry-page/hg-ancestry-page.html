@@ -32,10 +32,8 @@
                     <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
                 </div>
                 <div class="description">
-                    <h2>3. Ancestry analysis</h2>
-                    <p>
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                    </p>
+                    <h2>3. Genetic ancestry</h2>
+                    <p>Individuals from different geographic regions present systematic differences in their genetic data. As a general rule, individuals from the same geographic region are on average more similar in their genetic composition compared to individuals from a different region. When such differences pop up in the analysis of a sample of individuals, we say that the sample is structured. There are many ways to study the structure of a sample; one of the most commonly used is principal component analysis (PCA). PCA resumes large amounts of genetic data in plots of two or three dimensions that are perceivable by the human brain. In these plots, spatial proximity corresponds to genetic affinity. By analyzing an unknown sample together with samples from known geographic regions, information can be drawn regarding the origin of the former. Such analysis, apart from being interesting in its own right, is crucial because it determines whether a genetic prediction is reliable or not. This is because our prediction algorithms are trained on data from individuals of European descent. As a consequence, a non-European user of TheHonestGene should take our predictions with a grain of salt.</p>
                     <div class="controls">
                         <div>Progress: <span>{{state.task}} <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
                         <div class="buttons">
@@ -189,7 +187,10 @@
                 this.dispatch({type:'CHANGE_STEP'});
             },
             _onCancelBtnClick: function() {
-             
+             let id = this.getState().id;
+            if (id) {
+                this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'ancestry',id})
+            }
            },
            _computeOptions: function(pc1,pc2) {
                if (pc1 && pc2) {
@@ -212,7 +213,7 @@
           _onIronResize: function() {
                if (Polymer.dom(this).classList.contains('iron-selected')) {
                   this.debounce('redraw', function () {
-                    this.$.chart.drawChart();
+                      this.$.chart.drawChart();
                   });
                }
           }

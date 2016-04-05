@@ -34,8 +34,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             visibility: hidden;
         }
         
+        
         h2 {
             text-align: center;
+            @apply(--paper-font-headline);
         }
         
         .overallstats {
@@ -46,6 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             @apply(--layout-vertical);
             @apply(--layout-flex);
         }
+        
         
         .buttons {
             @apply(--layout-self-end);
@@ -58,13 +61,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <img src="http://icons.iconarchive.com/icons/graphicloads/medical-health/128/dna-icon.png">
                 </div>
                 <div class="description">
-                    <h2>1. Genotype</h2>
-                    <p>
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                        nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-                        mollit anim id est laborum."
+                    <h2>1. Genetic data</h2>
+                    <p>Individuals differ in the composition of their DNA sequences and such differences can be of many different types. Biotechnology companies are typically interested in the simplest type of such differences, the so-called point mutations or single nucleotide polymorphisms (SNPs Point mutations are changes of a single DNA letter at a time. A letter can either mutate to a different letter or it can be inserted/deleted from the original sequence. The user’s genetic data are nothing but long lists of such point mutations.<br>
+In general, an individual bears two non-identical copies of each of 22 chromosomes, as well as two sex chromosomes – two X chromosomes in the case of females, and one X and one Y in the case of males. When a point mutation is identical on both chromosome copies, the individual is said to be homozygous for that position; when the two copies differ, then the individual is said to be heterozygous for that position. Homozygosity and heterozygosity are useful reflections of variability and inbreeding status in a population.
                     </p>
                     <div class="controls">
                         <div hidden$="{{isFinished}}">Progress: <span>Uploading... <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>

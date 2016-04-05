@@ -1,4 +1,4 @@
-const getTaskId = (state,analysisType,trait) => {
+const getTaskId = (state,analysisType,traits) => {
   let id = getGenotypeId(state);
   if (!id) return null; 
   switch (analysisType) {
@@ -8,7 +8,16 @@ const getTaskId = (state,analysisType,trait) => {
       return state.analyses[id].ancestryStep.taskId;
     case 'riskprediction':
       try {
-        return state.analyses[id].riskPredictionStep.runningAnalysis[trait].taskId;
+        if (traits instanceof Array) {
+          const taskIds = [];
+          for (let trait of traits) {
+            taskIds.push(state.analyses[id].riskPredictionStep.runningAnalysis[trait].taskId);
+          }
+          return taskIds; 
+        }
+        else {
+          return state.analyses[id].riskPredictionStep.runningAnalysis[traits].taskId;
+        }
       }catch (Error) {
         console.log('Trait not found');
       } 

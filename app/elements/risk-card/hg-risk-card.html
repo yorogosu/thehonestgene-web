@@ -10,32 +10,78 @@
     paper-card {
         --paper-card-background-color:white;
         max-width:400px;
-        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        flex:1;
+        display:flex;
+        /* can't use because flex-basis:0.000000001px screws things up*/
+        
+        /*@apply(--layout-flex);*/
     }
       paper-progress {
       --paper-progress-height:20px;
     }
+    .progress paper-progress.error {
+        --paper-progress-active-color: var(--paper-red-500);
+    }
+    
+    .progress paper-progress.canceled {
+        --paper-progress-active-color: var(--paper-yellow-500);
+    }
     
     .results paper-progress {
-        --paper-progress-active-color: red;
+        --paper-progress-active-color: var(--paper-indigo-500)
+    }
+    paper-card .header {
+       @apply(--paper-font-headline); 
+    }
+    paper-card .header img {
+        width:50px;
+        height:50px;
+        vertical-align:middle;
+    }
+    paper-card .infos {
+         display:flex;
+         flex:1;
+        /* can't use because flex-basis:0.000000001px screws things up*/
+        
+        /*@apply(--layout-flex);*/
+        @apply(--layout-vertical);
+    }
+    
+    paper-card .card-content {
+        flex:1;
+       /* can't use because flex-basis:0.000000001px screws things up*/
+       /*@apply(--layout-flex);*/
+    }
+    
+    paper-card .card-actions {
+        padding:10px 16px !important;
     }
   </style>
   <template>
-        <paper-card heading="{{trait.title}}" image="http://placehold.it/350x150/FFC107/000000">
-            <div class="card-content">{{trait.description}}</div>
-            <div class="card-actions">
-                <div hidden$="{{analysisFinished}}">
-                    <paper-checkbox hidden$="{{analysisRunning}}" checked="{{selected}}"> Select for prediction</paper-checkbox>
-                    <div class="progress" hidden$="{{!analysisRunning}}">
-                        <div>Progress: <span>{{analysis.state.task}}</span></div>
-                        <paper-progress class="transiting" value="{{analysis.state.progress}}"></paper-progress>
+        <paper-card animated-shadow elevation="{{_animateSelection(selected,analysisRunning,analysisFinished)}}">
+           <div class="infos">
+                <div class="card-content">
+                    <div class="header">
+                        <img src$="{{trait.logourl}}">
+                        <span>{{trait.title}}</span>
+                    </div>
+                    <p>{{trait.description}}</p>
+                </div>
+                <div class="card-actions">
+                    <div hidden$="{{analysisFinished}}">
+                        <paper-checkbox hidden$="{{analysisRunning}}" checked="{{selected}}"> Select for prediction</paper-checkbox>
+                        <div class="progress" hidden$="{{!analysisRunning}}">
+                            <div>Progress: <span>{{analysis.state.task}}</span></div>
+                            <paper-progress class$="{{_computeProgressBarClass(analysis.state)}}" value="{{analysis.state.progress}}"></paper-progress>
+                        </div>
+                    </div>
+                    <div class="results" hidden$="{{!analysisFinished}}">
+                        <div>Risk: <span>{{percentageRisk}}%</span></div>
+                        <paper-progress class="transiting" class="transiting" value="{{percentageRisk}}"></paper-progress>
                     </div>
                 </div>
-                <div class="results" hidden$="{{!analysisFinished}}">
-                    <div>Risk: <span>{{percentageRisk}}%</span></div>
-                    <paper-progress class="transiting" class="transiting" value="{{percentageRisk}}"></paper-progress>
-                </div>
-            </div>
+             </div>
         </paper-card>
   </template>
   <script>
@@ -72,6 +118,9 @@
                 computed: '_isAnalysisFinished(analysis)',
             },
         },
+        _animateSelection: function(selected,analysisRunning,analysisFinished) {
+           return (selected || analysisRunning || analysisFinished) ? 3 : 1;  
+        },
         _isAnalysisRunning: function(analysis) {
             return analysis ? true : false;
         },
@@ -82,6 +131,16 @@
         _convertToPercentage: function(risk) {
             return risk*100;  
         },
+        _computeProgressBarClass: function(state) {
+            const classes = ['transiting']
+            if (state === 'ERROR') {
+                classes.push('error');
+            }
+            else if (state === 'CANCELED') {
+                classes.push('canceled');
+            }
+            return classes.join(' ');
+        }
       });
     })();
   </script>

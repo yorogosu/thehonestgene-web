@@ -86,16 +86,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-header-panel class="flex">
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar">
-          <span class="flex center"></span>
+          <span class="space"></span>
+
           <!-- Application name -->
-          <div class="middle paper-font-display2 app-name">TheHonestGene</div>
+          <div class="middle middle-container">
+            <div class="app-name">TheHonestGene</div>
+          </div>
+
+          <!-- Application sub title -->
+          <div class="bottom bottom-container">
+            <div class="bottom-title"></div>
+          </div>
         </paper-toolbar>
         <!-- Main Content -->
         <div class="fit layout vertical content">
           <section class="wizard" hidden$="{{isStartPage(route)}}">
-            <timeu-wizard steps='["Genotype","Imputation","Ancestry","Predictions"]' step="{{currentStepIx}}"></timeu-wizard>
+            <timeu-wizard steps='["Gentic data","Imputation","Ancestry","Predictions"]' step="{{currentStepIx}}"></timeu-wizard>
           </section> 
-          <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" >
+          <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" on-display-toast="onDisplayToastMessage">
             <hg-start-page data-route="start"></hg-start-page>
             <hg-genotype-page data-route="genotype"></hg-genotype-page>
             <hg-imputation-page data-route="imputation"></hg-imputation-page>
