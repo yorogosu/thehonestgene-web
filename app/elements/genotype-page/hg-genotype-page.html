@@ -118,8 +118,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
             var dataForAnnotationsPerChr = [['Chr']];
             dataForAnnotationsPerChr.push.apply(dataForAnnotationsPerChr[0],annotations);
-             
-            for (var chr in data.chr_stats) {
+            // required because for in does not keep sort order
+            let chrs = Object.keys(data.chr_stats).sort((a,b)=> parseInt(a.substring(3))-parseInt(b.substring(3))); 
+            for (let chr of chrs) {
                 var chr_data = data.chr_stats[chr];
                 dataForNumberOfSNPS.push([chr,chr_data.num_of_snps]);
                 var annotationData = [chr]

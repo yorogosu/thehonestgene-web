@@ -33,7 +33,15 @@
     }
     hg-risk-card {
         margin-top:10px;
+        height:364px;
+        width:100%;
+        max-width:400px;
         @apply(--layout-vertical);
+        flex:1;
+        display:flex;
+        /* can't use because flex-basis:0.000000001px screws things up*/
+        
+        /*@apply(--layout-flex);*/
     }
     
     .traitcardcontainer {

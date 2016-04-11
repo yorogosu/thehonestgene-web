@@ -49,7 +49,11 @@
         }
         
         .welcome-text {
-            @apply(--paper-font-subhead);
+            margin: 20px 0;
+            @apply(--layout-horizontal);
+            @apply(--layout-wrap);
+            @apply(--layout-center-justified);
+            
         }
         
         .divider {
@@ -87,10 +91,25 @@
         .checkbox-line {
             margin-left:50px;
         }
-        @media (max-width: 600px) {
+        .welcome-text > div {
+            padding:10px 20px;
+            margin:10px;
+            @apply(--shadow-elevation-2dp);
+            @apply(--paper-font-subhead);
+            @apply(--layout-flex);
+        }
+        .welcome-text h3 {
+             @apply(--paper-font-headline);
+             margin: 8px 0;
+        }
+        
+        @media (max-width: 800px) {
             h1.paper-font-display1 {
                 font-size: 24px;
             }
+             .welcome-text > div {
+                 /*max-width:320px;*/
+             }
             .options {
                 @apply(--layout-flex);
                 @apply(--layout-vertical);
@@ -101,10 +120,11 @@
     </style>
     <template>
         <div class="welcome-title">Welcome<span hidden$="{{!hasData}}"> back</span> to TheHonestGene</div>
-        <div class="welcome-text"><p>TheHonestGene is an open data platform for the alternative analysis of genetic data produced by personal genomics and biotechnology companies like 23andme, ancestryDNA and FamilyTreeDNA.<br>
-         In its current version, TheHonestGene offers reliable information about genetic ancestry, as well as predictions about the user’s height and her/his risk for diabetes and schizophrenia.<br>
-         TheHonestGene uses cutting-edge prediction algorithms that are tuned to offer the best compromise between accuracy and speed. Typically, results are returned within minutes since data upload.<br>
-         TheHonestGene ultimately offers the user the possibility of anonymously donating her/his genetic data for scientific research.</p>
+        <div class="welcome-text">
+            <div><h3 >Open & Free</h3>TheHonestGene is an open data platform for the alternative analysis of genetic data produced by personal genomics and biotechnology companies like 23andme, ancestryDNA and FamilyTreeDNA.</div>
+            <div><h3 >What can you do?</h3>In its current version, TheHonestGene offers reliable information about genetic ancestry, as well as predictions about the user’s height and her/his risk for diabetes and schizophrenia.</div>
+            <div><h3 >Fast & Precise</h3>TheHonestGene uses cutting-edge prediction algorithms that are tuned to offer the best compromise between accuracy and speed. Typically, results are returned within minutes since data upload.</div>
+            <div><h3 >Contribute to Science</h3>TheHonestGene ultimately offers the user the possibility of anonymously donating her/his genetic data for scientific research.</div>
         </div>
         <section class="sub_section">
             <div class="layout vertical section">

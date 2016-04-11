@@ -1,6 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/flip-card/flip-card.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/google-chart/google-chart.html">
 
 <dom-module id="hg-risk-card">
   <style include="shared-styles">
@@ -17,6 +21,10 @@
         
         /*@apply(--layout-flex);*/
     }
+    google-chart {
+        height:250px;
+        width:368px;
+    }
       paper-progress {
       --paper-progress-height:20px;
     }
@@ -28,9 +36,7 @@
         --paper-progress-active-color: var(--paper-yellow-500);
     }
     
-    .results paper-progress {
-        --paper-progress-active-color: var(--paper-indigo-500)
-    }
+    
     paper-card .header {
        @apply(--paper-font-headline); 
     }
@@ -55,38 +61,172 @@
     }
     
     paper-card .card-actions {
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-end);
+    }
+    
+    front, back {
+        display:flex;
+    }
+    
+    paper-card .card-actions {
         padding:10px 16px !important;
+    }
+    iron-icon {
+        opacity:0.5;
+        cursor:pointer;
+    }
+    .stats {
+        position: relative;
+    }
+    #riskLabel {
+        position:absolute;
+        z-index:9999;
+        font-size:12px;
+        color: #D50000;
+        white-space:nowrap;
+        @apply(--layout-vertical);
+    }
+    
+    #riskLabel iron-icon { 
+        cursor:initial;
+        opacity:1;
+        width:12px;
+        height:12px;
+    }
+    
+    .relative-risk {
+        @apply(--paper-font-body1);
+    }
+    
+    .relative-risk span.relative-risk-score {
+        margin-left:5px;
+        color:var(--paper-red-900);
+        @apply(--paper-font-body1);
+    }
+    
+    .relative-risk paper-progress {
+        margin:2px 0;
+         --paper-progress-height:5px;
+    }
+    
+    .relative-risk paper-progress.user-risk {
+       --paper-progress-active-color: var(--paper-red-900)
+        
+    }
+    
+    .relative-risk paper-progress.mean-risk {
+       --paper-progress-active-color: var(--paper-blue-grey-500) 
+    }
+    .not-run-text {
+        @apply(--paper-font-caption)
+    }
+    .finished-text {
+       @apply(--paper-font-subhead) 
+    }
+    .finished-text  iron-icon{
+        color:var(--paper-green-900);
+        cursor:initial;
+    }
+    .finished-text span {
+        isplay: inline-block;
+        vertical-align: middle;
+        padding-left: 8px;
+        white-space: normal;
+        line-height: normal;
     }
   </style>
   <template>
-        <paper-card animated-shadow elevation="{{_animateSelection(selected,analysisRunning,analysisFinished)}}">
-           <div class="infos">
+      <flip-card id="card" nohover flipped="{{analysisFinished}}">
+          <front>
+            <paper-card animated-shadow elevation="{{_animateSelection(selected,analysisRunning,analysisFinished)}}">
+                 <div class="infos">
+                    <div class="card-content">
+                        <div class="header">
+                            <img src$="{{trait.logourl}}">
+                            <span>{{trait.title}}</span>
+                        </div>
+                        <p>{{trait.description}}</p>
+                    </div>
+                    <div class="card-actions">
+                        <div hidden$="{{analysisFinished}}">
+                            <paper-checkbox hidden$="{{analysisRunning}}" checked="{{selected}}"> Select for prediction</paper-checkbox>
+                            <div class="progress" hidden$="{{!analysisRunning}}">
+                                <div>Progress: <span>{{analysis.state.task}}</span></div>
+                                <paper-progress class$="{{_computeProgressBarClass(analysis.state)}}" value="{{analysis.state.progress}}"></paper-progress>
+                            </div>
+                        </div>    
+                        <div class="finished-text" hidden$="{{!analysisFinished}}">
+                            <iron-icon icon="icons:check-box"></iron-icon><span>Click on chart icon see results</span>
+                        </div>
+                        <div>
+                            <iron-icon icon="editor:insert-chart" on-tap="_switchSides"></iron-icon>
+                        </div>  
+                    </div>
+                </div>
+            </paper-card>
+        </front>
+        <back>
+            <paper-card >
                 <div class="card-content">
                     <div class="header">
                         <img src$="{{trait.logourl}}">
                         <span>{{trait.title}}</span>
                     </div>
-                    <p>{{trait.description}}</p>
+                    <div class="stats">
+                        <div id="riskLabel" hidden$="{{!analysisFinished}}">
+                            <span>Your risk ({{percentageRisk}} %)</span>
+                            <iron-icon icon="icons:arrow-downward"></iron-icon>
+                        </div>
+                        <google-chart id="riskChart" type="histogram" data="{{dataTable}}" options="{{dataOptions}}"></google-chart>
+                    </div>
                 </div>
                 <div class="card-actions">
-                    <div hidden$="{{analysisFinished}}">
-                        <paper-checkbox hidden$="{{analysisRunning}}" checked="{{selected}}"> Select for prediction</paper-checkbox>
-                        <div class="progress" hidden$="{{!analysisRunning}}">
-                            <div>Progress: <span>{{analysis.state.task}}</span></div>
-                            <paper-progress class$="{{_computeProgressBarClass(analysis.state)}}" value="{{analysis.state.progress}}"></paper-progress>
+                    <div class="relative-risk" hidden$="{{!analysisFinished}}">
+                        <div><span>Relative Risk:</span><span class="relative-risk-score">{{_computeRelativeRisk(analysis.data.risk,trait.meanRisk)}}x</span> 
+                            <paper-progress class="transiting user-risk" value="{{percentageRisk}}"></paper-progress>
+                            <paper-progress class="transiting mean-risk" value="{{percentageMeanRisk}}"></paper-progress>
                         </div>
                     </div>
-                    <div class="results" hidden$="{{!analysisFinished}}">
-                        <div>Risk: <span>{{percentageRisk}}%</span></div>
-                        <paper-progress class="transiting" class="transiting" value="{{percentageRisk}}"></paper-progress>
+                    <div class="not-run-text" hidden$="{{analysisFinished}}">
+                        Run prediction to see results
                     </div>
-                </div>
-             </div>
-        </paper-card>
+                    <iron-icon icon="icons:description" on-tap="_switchSides"></iron-icon>
+                </div>   
+            </paper-card>
+         </back>
+      </flip-card>
   </template>
   <script>
     (function() {
       'use strict';
+      
+      var OPTIONS = {
+                title:'Risk in the population',
+                animation:{
+                    duration: 1000,
+                    easing: 'out',
+                    startup: true,
+                },
+                width:368,
+                height:250,
+                colors:['#ccc'],
+                legend: { position: 'none' },
+                chartArea: {width:321},
+                hAxis: {
+                  ticks: [0, 0.25, 0.5, 0.75, 1]
+                },
+                bar: { gap: 0, groupWidth:'100%' },
+                histogram: {
+                  bucketSize: 0.001,
+                  maxNumBuckets: 320,
+                  minValue: -0.5,
+                  maxValue: 1.5
+                },
+                dataOpacity: 0.6,
+                enableInteractivity: false,
+            };
       
       Polymer({
         is: 'hg-risk-card',
@@ -102,6 +242,7 @@
             }, 
             analysis: {
                 type: Object,
+                value:null,
             },
             analysisRunning: {
                 type: Boolean,
@@ -112,11 +253,26 @@
                 type:Number,
                 computed: '_convertToPercentage(analysis.data.risk)', 
             },
+            percentageMeanRisk: {
+                type:Number,
+                computed: '_convertToPercentage(trait.meanRisk)',
+            },
             analysisFinished: {
                 type: Boolean,
                 value: false,
                 computed: '_isAnalysisFinished(analysis)',
             },
+            dataTable: {
+                type: Object,
+                computed: '_computeDataTable(trait,analysis)',
+            },
+            dataOptions: {
+                type: Object,
+                computed:'_computeDataOptions(analysis)'
+            },
+        },
+        listeners: {
+          'riskChart.google-chart-render':"_onRenderChart",  
         },
         _animateSelection: function(selected,analysisRunning,analysisFinished) {
            return (selected || analysisRunning || analysisFinished) ? 3 : 1;  
@@ -129,7 +285,7 @@
             return analysis.state.state === 'FINISHED';  
         },
         _convertToPercentage: function(risk) {
-            return risk*100;  
+            return Math.round(risk*1000)/10;  
         },
         _computeProgressBarClass: function(state) {
             const classes = ['transiting']
@@ -140,7 +296,48 @@
                 classes.push('canceled');
             }
             return classes.join(' ');
-        }
+        },
+        _switchSides:function() {
+          this.$.card.toggle();  
+        },
+        _computeDataTable: function(trait,analysis) {
+            return trait.histogram;
+        },
+        _computeDataOptions: function(analysis) {
+          if (!analysis) {
+            return OPTIONS;
+          }
+          else {
+            let options = {...OPTIONS};
+            options.colors =  ['#4285F4'];
+            return options;
+          }
+        },
+        _computeRelativeRisk: function(risk,mean) {
+           return Math.round(risk/mean*100)/100;
+        },
+        _onRenderChart: function(e) {
+          if (!this.analysis || !this.analysis.data) {
+              return;
+          }
+          this.debounce('highlight',()=> {
+            let chartArea = this.$.riskChart._chartObject.getChartLayoutInterface().getChartAreaBoundingBox();
+            let x = this.$.riskChart._chartObject.getChartLayoutInterface().getXLocation(this.analysis.data.risk) + chartArea.left;
+            let y = this.$.riskChart._chartObject.getChartLayoutInterface().getYLocation(this.analysis.data.risk);
+            let recs = this.$.riskChart.querySelectorAll('g > rect[fill-opacity="0.6');
+            for (let i=0;i<recs.length;i++) {
+                let rec = recs[i];
+                let recX = parseInt(rec.x.baseVal.value);
+                if (recX >= x || (x <= 0) || (i === (recs.length-1))) {
+                    rec.setAttribute('fill','#D50000');
+                    rec.setAttribute('fill-opacity','1.0');
+                    this.$.riskLabel.style.left = recX-4+'px';
+                    this.$.riskLabel.style.top = (170 - rec.height.baseVal.value) +'px';
+                    return;
+                }
+            }
+          });
+        },
       });
     })();
   </script>

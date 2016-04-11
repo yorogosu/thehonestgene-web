@@ -1,0 +1,100 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/flip-card/flip-card.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+
+
+<dom-module id="hg-anim-card">
+  <style include="shared-styles">
+    :host {
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
+    }
+    
+    h2 {
+          text-align: center;
+          @apply(--paper-font-headline);
+    }
+    
+    flip-card {
+      @apply(--layout-flex);
+    }
+    
+    front > div {
+      @apply(--layout-vertical);
+    }
+    
+    back > div {
+      @apply(--layout-vertical);
+      @apply(--paper-font-body1);
+      padding:10px;
+    }
+    
+    flip-card front,back {
+      @apply(--shadow-elevation-2dp);
+    }
+    .header {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      padding: 0 10px;
+    }
+    .header h2 {
+      @apply(--layout-flex);
+    }
+    iron-icon {
+      cursor:pointer;
+      opacity:0.5;
+    }
+    
+  </style>
+  <template>
+      <flip-card id="card" axis$="{{axis}}" nohover flipped="{{flipped}}">
+          <front>
+            <div>
+              <div class="header"><h2>{{header}}</h2><iron-icon icon="icons:description" on-tap="_switchSides"></iron-icon></div>
+              <content select=".front"></content>
+            </div>
+          </front>
+          <back>
+            <div>
+              <div class="header"><h2>{{header}}</h2><iron-icon icon="editor:insert-chart" on-tap="_switchSides"></iron-icon></div>
+              <iron-icon></iron-icon>
+              <content select=".back"></content>
+            </div>
+          </back>
+      </flip-card>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'hg-anim-card',
+    
+    properties: {
+         header: String,
+         axis: {
+           type: String,
+           value: 'y',
+         },
+         flipped: {
+           type: Boolean,
+           notify:true,
+         }
+    },
+    _switchSides: function(e) {
+      this.$.card.toggle();
+    },
+    
+  });
+})();
+</script>

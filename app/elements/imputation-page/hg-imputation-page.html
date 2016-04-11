@@ -14,14 +14,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="hg-imputation-page" >
   <style include="shared-styles">
     :host {
-         @apply(--layout-vertical); 
+         /*@apply(--layout-vertical);*/ 
     }
     paper-progress {
       --paper-progress-height:20px;
     }
     google-chart {
         width:100%;
-        @apply(--layout-flex);
+        height:100%;
+        visibility: hidden;
     }
     h2 {
         text-align:center;
@@ -30,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--layout-self-end);
     }
     .chart {
-        visibility: hidden;
+        
         min-height:300px;
         @apply(--layout-flex);
         @apply(--layout-vertical);
@@ -40,8 +41,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--layout-flex);
     }
     .chartContainer {
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
+       /* @apply(--layout-vertical);
+        @apply(--layout-flex);*/
+        margin-top:5px;
+    }
+    hg-anim-card {
+          margin-top:10px;
+    }
+    #accuracyLabel {
+      position:absolute;
+      font-size:24px;
     }
   </style>
   <template>
@@ -64,18 +73,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </paper-material>
         <div id="chartcontainer" class="chartContainer">
-            <div class="chart">
-                <h2>Conversion stats</h2>
-                <google-chart id="conversionChart"  type="column" data="{{_getChartDataForConversion(isFinished,data)}}" options="{{_getChartOptionsForConversion(isFinished,data)}}"></google-chart>
-            </div>
-            <div class="chart">
-                <h2>Imputation stats</h2>
-                <google-chart id="imputationChart"  type="column" data="{{_getChartDataForImputation(isFinished,data)}}" options="{{_getChartOptionsForImputation(isFinished,data)}}"></google-chart>
-            </div>
-            <div class="chart">
-                    <h2>Imputation accuracy</h2>
-                    <google-chart id="pieChart" type="pie" data="{{_getChartDataForAccuracy(isFinished,data)}}" options="{{_getChartOptionsForAccuracy(isFinished,data)}}"></google-chart>
-            </div>
+            <hg-anim-card axis="x" header="Conversion stats" style="height:300px">
+                <google-chart class="front" id="conversionChart"  type="column" data="{{_getChartDataForConversion(isFinished,data)}}" options="{{_getChartOptionsForConversion(isFinished,data)}}"></google-chart>
+                <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </hg-anim-card>
+            <hg-anim-card axis="x" header="Imputation stats" style="height:300px">
+                <google-chart class="front" id="imputationChart"  type="column" data="{{_getChartDataForImputation(isFinished,data)}}" options="{{_getChartOptionsForImputation(isFinished,data)}}"></google-chart>
+                <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </hg-anim-card>
+            <hg-anim-card axis="x" header="Imputation accuracy" style="height:300px">
+                <div class="front">
+                  <google-chart class="front" id="pieChart" type="pie" data="{{_getChartDataForAccuracy(isFinished,data)}}" options="{{_getChartOptionsForAccuracy(isFinished,data)}}"></google-chart>
+                  <span id="accuracyLabel">{{_getAccuracy(isFinished,data)}}</span>
+                </div>
+                <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </hg-anim-card>
+            
          </div>
        </section>
   </template>
@@ -208,7 +221,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var chartData =  [];
         var header = ['Chr', 'Parsed', 'Not found', 'Unknown'];
         chartData.push(header);
-        for (var chr in chrStats) {
+        let chrs = Object.keys(chrStats).sort((a,b)=> parseInt(a.substring(3))-parseInt(b.substring(3)));
+        for (let chr of chrs) {
             var chrStat = chrStats[chr];
             chartData.push([chr,chrStat['num_parsed_ok'],chrStat['num_not_found'],chrStat['num_misunderstood']])
         }
@@ -222,7 +236,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var chartData =  [];
         var header = ['Chr', 'Imputed SNPs'];
         chartData.push(header);
-        for (var chr in chrStats) {
+        let chrs = Object.keys(chrStats).sort((a,b)=> parseInt(a.substring(3))-parseInt(b.substring(3)));
+        for (let chr of chrs) {
             var chrStat = chrStats[chr];
             chartData.push([chr,chrStat])
         }
@@ -259,6 +274,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return pieData;
         
       },
+      _getAccuracy: function(isFinished,data) {
+         if (data) {
+            return this._getRoundedR2Pred(data.imputation.pred_r2)*100 +" %";
+         } 
+      }, 
       _getRoundedR2Pred: function(r2) {
         return Math.round(r2*100)/100  
       },
@@ -312,7 +332,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          if (Polymer.dom(this).classList.contains('iron-selected')) {
              let chart = e.srcElement;
              chart.style.visibility = 'visible';
+             if (e.srcElement === this.$.pieChart) {
+               this._positionDonutLabel();
+             }
          }
+     },
+     _positionDonutLabel: function() {
+        let box = this.$.pieChart._chartObject.getChartLayoutInterface().getChartAreaBoundingBox();
+        let accuracyLabel = document.querySelector('#accuracyLabel');
+        accuracyLabel.style.top=  box.top + 58 + box.height/2+"px";
+        accuracyLabel.style.left= box.left - 17 +box.width/2 + "px";
      },
       _onIronResize: function() {
           if (Polymer.dom(this).classList.contains('iron-selected')) {

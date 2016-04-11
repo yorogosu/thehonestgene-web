@@ -42,6 +42,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         
         .overallstats {
             @apply(--layout-horizontal);
+            height:280px;
+            margin: 5px 0;
         }
         
         .overallstats > div {
@@ -49,9 +51,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             @apply(--layout-flex);
         }
         
+        .chartcontainer {
+            margin-top:5px;
+        }
+        .overallstats hg-anim-card {
+            margin:0;
+        }
         
         .buttons {
             @apply(--layout-self-end);
+        }
+        hg-anim-card {
+            margin-top:10px;
         }
     </style>
     <template strip-whitespace>
@@ -80,27 +91,31 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
             </paper-material>
             <div class="chartcontainer" id="chartcontainer">
                 <div class="overallstats">
-                    <div>
-                        <h2>Total heterozygosity</h2>
-                        <google-chart id="homoChart" type="pie" data="{{dataForHetero}}" options="{{_getChartOptionsForHetero(dataForHetero)}}"></google-chart>
+                    <div style="width:50%;margin-right:2px">
+                        <hg-anim-card header="Total heterozygosity">
+                            <google-chart class="front" id="homoChart" type="pie" data="{{dataForHetero}}" options="{{_getChartOptionsForHetero(dataForHetero)}}"></google-chart>
+                            <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </hg-anim-card>
                     </div>
-                    <div>
-                        <h2>Annotations</h2>
-                        <google-chart id="annotationChart" type="pie" data="{{dataForAnnotations}}" options="{{_getChartOptionsForAnnotations(dataForAnnotations)}}"></google-chart>
+                    <div style="width:50%;margin-left:2px">
+                        <hg-anim-card header="Annotations" >
+                            <google-chart class="front" id="annotationChart" type="pie" data="{{dataForAnnotations}}" options="{{_getChartOptionsForAnnotations(dataForAnnotations)}}"></google-chart>
+                            <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </hg-anim-card>
                     </div>
                 </div>
-                <div>
-                    <h2>Number of SNPs per chromosome</h2>
-                    <google-chart id="numberOfSNPsChart" type="column" data="{{dataForNumberOfSnps}}" options="{{_getChartOptionsForNumberOfSNPs(dataForNumberOfSnps)}}"></google-chart>
-                </div>
-                <div>
-                    <h2>Heterozygosity per chromosome</h2>
-                    <google-chart id="homoPerChrChart" type="column" data="{{dataForHeteroPerChr}}" options="{{_getChartOptionsForHeteroPerChr(dataForHeteroPerChr)}}"></google-chart>
-                </div>
-                <div>
-                    <h2>Annotations per chromosome</h2>
-                    <google-chart id="annotationPerChrChart" type="column" data="{{dataForAnnotationsPerChr}}" options="{{_getChartOptionsForAnnotationsPerChr(dataForAnnotationsPerChr)}}"></google-chart>
-                </div>
+                <hg-anim-card axis="x" header="Number of SNPs per chromosome" style="height:280px">
+                    <google-chart class="front" id="numberOfSNPsChart" type="column" data="{{dataForNumberOfSnps}}" options="{{_getChartOptionsForNumberOfSNPs(dataForNumberOfSnps)}}"></google-chart>
+                    <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </hg-anim-card>
+                <hg-anim-card axis="x" header="Heterozygosity per chromosome" style="height:280px">
+                    <google-chart class="front" id="homoPerChrChart" type="column" data="{{dataForHeteroPerChr}}" options="{{_getChartOptionsForHeteroPerChr(dataForHeteroPerChr)}}"></google-chart>
+                    <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </hg-anim-card>
+                <hg-anim-card axis="x" header="Annotations per chromosome" style="height:280px">
+                    <google-chart class="front" id="annotationPerChrChart" type="column" data="{{dataForAnnotationsPerChr}}" options="{{_getChartOptionsForAnnotationsPerChr(dataForAnnotationsPerChr)}}"></google-chart>
+                    <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </hg-anim-card>
             </div>
         </section>
     </template>

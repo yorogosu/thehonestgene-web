@@ -13,7 +13,8 @@
     "timeu-wizard": "^1.0.0",
     "neon-animation": "PolymerElements/neon-animation#1.1.0",
     "vaadin-grid": "^1.0.0",
-    "moment-element": "^0.3.2"
+    "moment-element": "^0.3.2",
+    "flip-card": "timeu/flip-card#master"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
