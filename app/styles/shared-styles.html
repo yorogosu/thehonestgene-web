@@ -20,6 +20,11 @@
         pointer-events: none;
       }
       
+      paper-button a {
+          text-decoration: none;
+          color:#000;
+      }
+      
       .infocard {
          @apply(--layout-horizontal)
          padding:20px; 
@@ -32,7 +37,7 @@
           @apply(--layout-flex);
           @apply(--layout-vertical);
           @apply(--layout-center-justified);
-          padding:10px;
+          padding:5px;
        }
        .infocard .description h2 {
           margin: 5px;
@@ -45,21 +50,17 @@
        }
        .infocard .controls {
           border-top: 1px solid #e8e8e8;
-          padding: 5px;
+          padding-top: 5px;
           @apply(--layout-horizontal);
           @apply(--layout-justified);
           @apply(--layout-center);
        }
        
-       /*flip-card {
-           height:initial !important;
+       .infocard .controls paper-button {
+           --paper-button-disabled: {
+               background:#ffffff;
+           }
        }
-       
-       flip-card front,back {
-           @apply(--shadow-elevation-2dp);
-           box-sizing: content-box;
-           
-       }*/
 
       @media (max-width: 600px) {
         .page-title {

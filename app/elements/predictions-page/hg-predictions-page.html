@@ -53,7 +53,7 @@
         padding:10px;
     }
   </style>
-  <template>
+  <template strip-whitespace>
       <section class="container">
         <paper-material elevation="1" class="infocard" id="infocard">
                 <div class="step">
@@ -67,9 +67,9 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
                     <div class="controls">
                         <div></div>
                         <div class="buttons">
-                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"><iron-icon icon="" ></iron-icon>Cancel</paper-button>
-                            <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Ancestry</paper-button>
-                            <paper-button id="startBtn" on-tap="_onStartAnalysis" hidden$="{{!isSelectedTraits}}"><iron-icon icon="" ></iron-icon>Start analysis</paper-button>
+                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick" hidden$="{{!isRunningTraits}}"><iron-icon icon="icons:clear"></iron-icon>Cancel</paper-button>
+                            <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="icons:chevron-left" ></iron-icon>Ancestry</paper-button>
+                            <paper-button id="startBtn" on-tap="_onStartAnalysis" disabled$="{{!isSelectedTraits}}"><iron-icon icon="icons:settings-power" ></iron-icon>Start analysis</paper-button>
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
           isSelectedTraits : {
               type: Boolean,
               value: false,
-              computed: '_isSelectedTraits(selectedTraits)'
+              computed: '_containsItems(selectedTraits)'
           },
           selectedTraits: {
               type: Object,
@@ -155,6 +155,11 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
               type: Object,
               value: function() { return {};},
               statePath: function(state){ return state.id ? state.analyses[state.id].riskPredictionStep.runningAnalysis:undefined}
+          },
+          isRunningTraits: {
+              type: Boolean,
+              value:false,
+              computed: '_containsItems(runningTraits)',
           }
         },
         listeners: {
@@ -178,8 +183,8 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
                 }
             }
           },
-          _isSelectedTraits: function(selectedTraits)  {
-            if (selectedTraits && Object.keys(selectedTraits).length > 0) {
+          _containsItems: function(items)  {
+            if (items && Object.keys(items).length > 0) {
                 return true;
             }  
             return false;

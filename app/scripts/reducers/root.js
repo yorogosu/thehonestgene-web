@@ -307,6 +307,12 @@ const messageReducer = function(state, action, analysisType) {
             if (analysisType == action.analysisType) {
                 return { state: 'ERROR', progress: 0, task: "Failed", analysisType: analysisType,error:action.error };
             }
+        case 'RUN_ANALYSIS_CANCELED':
+            if (analysisType == action.analysisType) {
+                state = {...state,task: 'Canceled by user'};
+                state['state'] = 'CANCELED';
+                return state;
+            }
         default:
             return state;
     }

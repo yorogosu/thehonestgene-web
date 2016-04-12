@@ -65,9 +65,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="controls">
                     <div>Progress: <span>{{state.task}} <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
                     <div class="buttons">
-                        <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"><iron-icon icon="" ></iron-icon>Cancel</paper-button>
-                        <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Genotype</paper-button>
-                        <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Ancestry<iron-icon icon="arrow-forward"  ></iron-icon></paper-button>
+                        <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="icons:chevron-left" ></iron-icon>Genotype</paper-button>
+                        <paper-button id="cancelBtn" on-tap="_onCancelBtnClick" hidden$="{{!isRunning}}"><iron-icon icon="icons:clear" ></iron-icon>Cancel</paper-button>
+                        <paper-button id="startBtn" on-tap="_onStartBtnClick" hidden$="{{isRunningOrFinished}}" ><iron-icon icon="icons:settings-power" ></iron-icon>Start Imputation</paper-button>
+                        <paper-button id="nextBtn" on-tap="_onNextBtnClick" hidden$="{{!isFinished}}" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Ancestry<iron-icon icon="icons:chevron-right"></iron-icon></paper-button>
                     </div>
                 </div>
             </div>
@@ -186,8 +187,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           statePath: function(state){ return state.id ? state.analyses[state.id].imputationStep.state:undefined} 
         },
         isFinished: {
-            type: Boolean,
-            computed:'_isFinished(state.state)'
+          type: Boolean,
+          computed:'_isFinished(state.state)'
+        },
+        isRunning: {
+          type:Boolean,
+          computed: '_isRunning(state.state)',
+        },
+        isRunningOrFinished: {
+          type:Boolean,
+          computed: '_isRunningOrFinished(isRunning,isFinished)',
         }
         
       },
@@ -197,6 +206,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
       _isFinished: function(state) {
           return state === 'FINISHED';
+      },
+      _isRunning: function(state) {
+          return state === 'RUNNING';
+      },
+      _isRunningOrFinished: function(isRunning,isFinished) {
+          return isFinished || isRunning;
       },
       _getChartOptionsForConversion: function(isFinished,data) {
           if (!isFinished|| data === null) {
@@ -326,7 +341,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        let id = this.getState().id;
        if (id) {
          this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'imputation',id})
+         this.fire('display-toast',{'text':'Stopping imputation...'});
        }  
+     },
+     _onStartBtnClick: function(e) {
+        this.dispatch({type:'RUN_ANALYSIS',analysisType:'imputation'})
      },
      _onRenderChart: function(e) {
          if (Polymer.dom(this).classList.contains('iron-selected')) {

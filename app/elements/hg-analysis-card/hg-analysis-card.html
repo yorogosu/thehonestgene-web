@@ -48,13 +48,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <span><moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element></span>
             </div>
             <div>
-                <iron-icon class$="check {{_computeCheckClass(data.imputation)}}"  icon="icons:done"></iron-icon><span>Genotype</span> <span>[{{data.genotype}}]</span>
+                <iron-icon class$="check {{_computeCheckClass(data.genotype)}}"  icon="icons:done"></iron-icon><span>Genotype</span> <span>[{{data.genotype}}]</span>
             </div>
             <div>
                 <iron-icon class$="check {{_computeCheckClass(data.imputation)}}" icon="icons:done"></iron-icon><span>Imputation</span>
             </div>
             <div>
-                <iron-icon class$="check {{_computeCheckClass(data.imputation)}}" icon="icons:done"></iron-icon><span>Ancestry</span>
+                <iron-icon class$="check {{_computeCheckClass(data.ancestry)}}" icon="icons:done"></iron-icon><span>Ancestry</span>
             </div>
             <div>
                 <span>Predictions:</span>
@@ -110,8 +110,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     _clickView: function() {
         this.fire('view-analysis',this.data.id);
     },
-    _computeCheckClass: function(imputation) {
-       return imputation ? 'ok': 'notok';  
+    _computeCheckClass: function(item) {
+       return item ? 'ok': 'notok';  
     },
     _clickDelete: function() {
         this.fire('delete-analysis',this.data.id);

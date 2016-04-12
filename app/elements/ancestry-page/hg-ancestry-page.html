@@ -37,9 +37,10 @@
                     <div class="controls">
                         <div>Progress: <span>{{state.task}} <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
                         <div class="buttons">
-                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"><iron-icon icon="" ></iron-icon>Cancel</paper-button>
-                            <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="arrow-back" ></iron-icon>Imputation</paper-button>
-                            <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Risk prediction<iron-icon icon="arrow-forward" ></iron-icon></paper-button>
+                            <paper-button id="previousBtn" on-tap="_onPreviousBtnClick"><iron-icon icon="icons:chevron-left" ></iron-icon>Imputation</paper-button>
+                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick"  hidden$="{{!isRunning}}"><iron-icon icon="icons:clear" ></iron-icon>Cancel</paper-button>
+                            <paper-button id="startBtn" on-tap="_onStartBtnClick" hidden$="{{isRunningOrFinished}}" ><iron-icon icon="icons:settings-power" ></iron-icon>Start Ancestry</paper-button>
+                            <paper-button id="nextBtn" on-tap="_onNextBtnClick" hidden$="{{!isFinished}}" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Risk prediction<iron-icon icon="icons:chevron-right" ></iron-icon></paper-button>
                         </div>
                     </div>
                 </div>
@@ -150,6 +151,14 @@
               type: Boolean,
               computed:'_isFinished(state.state)'
           },
+          isRunning: {
+            type:Boolean,
+            computed: '_isRunning(state.state)',
+          },
+          isRunningOrFinished: {
+            type:Boolean,
+            computed: '_isRunningOrFinished(isRunning,isFinished)',
+          },
           options: {
             type: Object,
             value: function() { return emptyOptions;},
@@ -169,6 +178,12 @@
          _isFinished: function(state) {
            return state === 'FINISHED';
         }, 
+        _isRunning: function(state) {
+          return state === 'RUNNING';
+        },
+        _isRunningOrFinished: function(isRunning,isFinished) {
+            return isFinished || isRunning;
+        },
         _getNextBtnVisibility: function(isFinished) {
           return isFinished ? 'visible' : 'hidden';
         },
@@ -188,9 +203,13 @@
             },
             _onCancelBtnClick: function() {
              let id = this.getState().id;
-            if (id) {
-                this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'ancestry',id})
-            }
+              if (id) {
+                  this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'ancestry',id})
+                  this.fire('display-toast',{'text':'Stopping ancestry...'});
+              }
+           },
+           _onStartBtnClick: function(e) {
+              this.dispatch({type:'RUN_ANALYSIS',analysisType:'ancestry'})
            },
            _computeOptions: function(pc1,pc2) {
                if (pc1 && pc2) {

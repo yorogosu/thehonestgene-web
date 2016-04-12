@@ -341,12 +341,12 @@
             let id = analysis.name;
             let genotype = null;
             if (item.genotypeStep.data !== null) {
-                genotype = item.genotypeStep.data.genotype !== null ? item.genotypeStep.data.genotype : 'N/A';
+                genotype = item.genotypeStep.data.genotype ? item.genotypeStep.data.genotype : 'N/A';
             }
             let imputation = item.imputationStep.state.state === 'FINISHED';
             let ancestry = null;
             if (item.ancestryStep.data !== null) {
-                ancestry = item.ancestryStep.isEuropean;
+                ancestry = item.ancestryStep.data.is_in_population;
             }
             let predictions = [];
             if (Object.keys(item.riskPredictionStep.runningAnalysis).length) {

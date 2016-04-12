@@ -80,10 +80,9 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
                         <div hidden$="{{isFinished}}">Progress: <span>Uploading... <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
                     <div hidden$="{{!isFinished}}">Total number of SNPs: <span>{{numberofsnps}}</span></div>
                         <div class="buttons">
-                            <paper-button id="cancelBtn" on-tap="_onCancelBtnClick">
-                                <iron-icon icon=""></iron-icon>Cancel</paper-button>
+                            <paper-button hidden$="{{isAnalysisRunning}}"><iron-icon icon="icons:chevron-left" ></iron-icon><a href="/#!/start/">Start</a></paper-button>
                             <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Imputation
-                                <iron-icon icon="arrow-forward"></iron-icon>
+                                <iron-icon icon="icons:chevron-right"></iron-icon>
                             </paper-button>
                         </div>
                     </div>
@@ -271,16 +270,28 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
         numberofsnps: {
             type:Number,
         },
+        ancestryState: {
+            type:String,
+            statePath: function(state) { return state.id ? state.analyses[state.id].ancestryStep.state.state : undefined },
+        },
+        imputationState: {
+            type:String,
+            statePath: function(state) { return state.id ? state.analyses[state.id].imputationStep.state.state : undefined },
+        },
         state: {
             type:Object,
             statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.uploadState.state : undefined}
         },
+        
+        isAnalysisRunning: {
+            type: Boolean,
+            computed: '_isAnalysisRunning(isFinished,imputationState,ancestryState)',
+        },
+        
         isFinished: {
             type: Boolean,
             computed: '_isFinished(state)'
         },
-        
-        
       },
       listeners: {
           'iron-resize': '_onIronResize',
@@ -288,6 +299,9 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
         },
       _isFinished: function(state) {
         return state === 'FINISHED';  
+      },
+      _isAnalysisRunning: function(isFinished,imputationState,ancestryState) {
+          return !isFinished ||  imputationState === 'RUNNING' ||   ancestryState === 'RUNNING';
       },
       _getNextBtnVisibility: function(isFinished) {
           return isFinished ? 'visible' : 'hidden';
