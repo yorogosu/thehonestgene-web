@@ -141,11 +141,11 @@
           }, 
           data: {
               type:Object,
-              statePath: function(state){ return state.id ? state.analyses[state.id].ancestryStep.data:undefined}
+              statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].ancestryStep.data:undefined}
           },
           state: {
             type: String,
-            statePath: function(state){ return state.id ? state.analyses[state.id].ancestryStep.state:undefined}
+            statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].ancestryStep.state:undefined}
            },
            isFinished: {
               type: Boolean,

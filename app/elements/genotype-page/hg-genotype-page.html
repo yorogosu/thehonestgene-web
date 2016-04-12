@@ -64,15 +64,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             },
           route: {
               type: String,
-              statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.step : 'list'} 
+              statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].genotypeStep.step : this.route} 
           },  
           uploadState: {
              type: String,
-             statePath: function(state) {return state.id ? state.analyses[state.id].genotypeStep.uploadState.state : null},
+             statePath: function(state) {return state.id in state.analyses ? state.analyses[state.id].genotypeStep.uploadState.state : null},
           },
           genotypeData: {
             type: Object,
-            statePath: function(state) {return state.id ? state.analyses[state.id].genotypeStep.data : undefined},
+            statePath: function(state) {return state.id in state.analyses ? state.analyses[state.id].genotypeStep.data : undefined},
             observer: '_updateGenotypeData'
           },
           dataForNumberOfSNPS: {

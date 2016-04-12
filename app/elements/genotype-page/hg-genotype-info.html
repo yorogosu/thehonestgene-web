@@ -80,7 +80,7 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
                         <div hidden$="{{isFinished}}">Progress: <span>Uploading... <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
                     <div hidden$="{{!isFinished}}">Total number of SNPs: <span>{{numberofsnps}}</span></div>
                         <div class="buttons">
-                            <paper-button hidden$="{{isAnalysisRunning}}"><iron-icon icon="icons:chevron-left" ></iron-icon><a href="/#!/start/">Start</a></paper-button>
+                            <paper-button hidden$="{{isAnalysisRunning}}"><iron-icon icon="icons:chevron-left" ></iron-icon><a href="/#/start/">Start</a></paper-button>
                             <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Imputation
                                 <iron-icon icon="icons:chevron-right"></iron-icon>
                             </paper-button>
@@ -272,15 +272,15 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
         },
         ancestryState: {
             type:String,
-            statePath: function(state) { return state.id ? state.analyses[state.id].ancestryStep.state.state : undefined },
+            statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].ancestryStep.state.state : undefined },
         },
         imputationState: {
             type:String,
-            statePath: function(state) { return state.id ? state.analyses[state.id].imputationStep.state.state : undefined },
+            statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].imputationStep.state.state : undefined },
         },
         state: {
             type:Object,
-            statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.uploadState.state : undefined}
+            statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].genotypeStep.uploadState.state : undefined}
         },
         
         isAnalysisRunning: {

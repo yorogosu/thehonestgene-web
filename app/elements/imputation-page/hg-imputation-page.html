@@ -180,11 +180,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }, 
         data: {
           type:Object,
-          statePath: function(state){ return state.id ? state.analyses[state.id].imputationStep.data:undefined}  
+          statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].imputationStep.data:undefined}  
         },
         state: {
           type: String,
-          statePath: function(state){ return state.id ? state.analyses[state.id].imputationStep.state:undefined} 
+          statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].imputationStep.state:undefined} 
         },
         isFinished: {
           type: Boolean,

@@ -147,12 +147,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           selectedProviders: {
             type:Object,
             value: function() {return {}},
-            statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.cloudUpload.selectedProviders : {} }
+            statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].genotypeStep.cloudUpload.selectedProviders : {} }
             //statePath:'genotypeStep.cloudUpload.selectedProviders'
           },
           currentProvider: {
             type: String,
-            statePath: function(state) { return state.id ? state.analyses[state.id].genotypeStep.cloudUpload.currentProvider : null },
+            statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].genotypeStep.cloudUpload.currentProvider : null },
             //statePath:'genotypeStep.cloudUpload.currentProvider',
             observer:'_changeCurrntProvider'
           },

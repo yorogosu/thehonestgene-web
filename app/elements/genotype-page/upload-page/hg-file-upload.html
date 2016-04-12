@@ -161,7 +161,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Object,
             value: function() {return null;},
             statePath: function(state) {
-                if (!state.id)
+                if (!(state.id in state.analyses))
                    return;
                 return state.analyses[state.id].genotypeStep.fileUpload.genotypeFile;
             },
@@ -183,13 +183,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           progress: {
             type: Object,
             value: function() {return null;},
-            statePath: function(state) { if (state.id) return state.analyses[state.id].genotypeStep.fileUpload.progress },
+            statePath: function(state) { if (state.id in state.analyses) return state.analyses[state.id].genotypeStep.fileUpload.progress },
             //statePath: 'genotypeStep.fileUpload.progress'
           }, 
           uploadState: {
             type: Object,
             value: function() { return null;},
-            statePath: function(state) { if (state.id) return state.analyses[state.id].genotypeStep.fileUpload.uploadState },
+            statePath: function(state) { if (state.id in state.analyses) return state.analyses[state.id].genotypeStep.fileUpload.uploadState },
             //statePath: 'genotypeStep.fileUpload.uploadState',
             observer: '_updateUploadState'
           }
