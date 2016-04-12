@@ -311,9 +311,6 @@
                 };
             });
         },
-        _computeDaysPassed: function(date) {
-          return "2 days ago";  
-        },
         _hasData: function(analyses)  {
            return Object.keys(analyses).length > 0;
         },
@@ -350,8 +347,8 @@
                 ancestry = item.ancestryStep.data.is_in_population;
             }
             let predictions = [];
-            if (Object.keys(item.riskPredictionStep.runningAnalysis).length) {
-                predictions = [...Object.keys(item.riskPredictionStep.runningAnalysis)];
+            for (let trait of this.getState().traits) {
+                predictions.push({name:trait.title,logourl:trait.logourl,state:trait.name in item.riskPredictionStep.runningAnalysis})
             }
             return {date:item.date,genotype,imputation,ancestry,predictions,id}
         },
@@ -380,7 +377,6 @@
             this.animationConfig.entry[1].nodes = nodesForCascade;
             this.animationConfig.exit[3].node = target;
             this.animationConfig.entry[3].node = target;
-            //this.dispatch('loadAnalysis',e.detail);
         },
         _hasError: function(lastError) {
             return lastError !== null;

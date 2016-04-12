@@ -20,45 +20,103 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style include="shared-styles">
     :host {
       display: block;
+      width:250px;
     }
-    paper-card.white {
-            --paper-card-background-color: #fff;
-    }
-    .card-content div {
-        margin:5px;
-    }
+   
+   paper-card {
+       width:100%;
+   }
     
-    .check.ok {
-        color:green;
-        font-weight:bold;
-    }
-    .check.notok {
-        color:#ccc;
-    }
     .card-content iron-icon {
         margin-right:10px;
+    }
+    .card-actions {
+        @apply(--paper-font-button);
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        color: var(--primary-text-color);
+    }
+    .header {
+        margin-top:1px;
+        margin-bottom:16px;
+    }
+    .header .title {
+        color: var(--primary-text-color);
+        @apply(--paper-font-headline);
+    }
+    .header moment-element {
+      color: var(--secondary-text-color);
+      @apply(--paper-font-body1);
+    }
+    
+    .analysis {
+        @apply(--layout-horizontal);
+        @apply(--paper-font-body1);
+        @apply(--layout-justified);
+        @apply(--layout-center);
+        color: var(--primary-text-color);
+    }
+    
+    .analysis.ok {
+        color:var(--paper-green-500);
+    }
+    
+    .analysis.notok {
+        color:var(--disabled-text-color);
+    }
+    
+    .analysis .genotype {
+        color: var(--secondary-text-color);
+         @apply(--paper-font-caption);
+         font-size:10px;
+    }
+    .predictions {
+        margin-top:16px;
+        border-top: 1px solid #e8e8e8;
+    }
+    .predictions .subtitle {
+        @apply(--paper-font-body1);
+        color: var(--secondary-text-color);
+        line-height:48px;
+    }
+    
+    .predictions .analysis img {
+         width:18px;
+        height:18px;
+        vertical-align:middle;
+    }
+    .predictions .analysis span {
+        margin-left:8px;
     }
     
   </style>
   <template>
-      <paper-card heading="{{_computeDaysPassed(data.date)}}" class="white">
+      <paper-card>
         <div class="card-content">
-            <div>
-                <span>Date:</span>
-                <span><moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element></span>
+            <div class="header">
+                 <div class="title">{{_computeDaysPassed(data.date)}}</div>
+                 <moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element>
             </div>
-            <div>
-                <iron-icon class$="check {{_computeCheckClass(data.genotype)}}"  icon="icons:done"></iron-icon><span>Genotype</span> <span>[{{data.genotype}}]</span>
+            <div class$="analysis {{_computeCheckClass(data.genotype)}}">
+                <span>Genetic Data <span class="genotype">{{data.genotype}}</span></span><iron-icon icon$="{{_computeIcon(data.genotype)}}"></iron-icon>
             </div>
-            <div>
-                <iron-icon class$="check {{_computeCheckClass(data.imputation)}}" icon="icons:done"></iron-icon><span>Imputation</span>
+            <div class$="analysis {{_computeCheckClass(data.imputation)}}">
+                <span>Imputation</span><iron-icon  icon$="{{_computeIcon(data.imputation)}}"></iron-icon>
             </div>
-            <div>
-                <iron-icon class$="check {{_computeCheckClass(data.ancestry)}}" icon="icons:done"></iron-icon><span>Ancestry</span>
+            <div class$="analysis {{_computeCheckClass(data.ancestry)}}" >
+                <span>Ancestry</span><iron-icon  icon$="{{_computeIcon(data.ancestry)}}"></iron-icon>
             </div>
-            <div>
-                <span>Predictions:</span>
-                <span>{{_getPredictions(data.predictions)}}</span>
+            <div class="predictions">
+                <div class="subtitle">Predictions</div>
+                <template is="dom-repeat" items="{{data.predictions}}">
+                    <div class$="analysis {{_computeCheckClass(item.state)}}">
+                        <div>
+                            <img src$="{{item.logourl}}">
+                            <span>{{item.name}}</span>
+                        </div>
+                        <iron-icon  icon$="{{_computeIcon(item.state)}}"></iron-icon>
+                    </div>
+                </template>
             </div>
         </div>
         <div class="card-actions">
@@ -112,6 +170,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
     _computeCheckClass: function(item) {
        return item ? 'ok': 'notok';  
+    },
+    _computeIcon: function(item) {
+        return item ? 'icons:check' : 'icons:remove'
     },
     _clickDelete: function() {
         this.fire('delete-analysis',this.data.id);
