@@ -278,9 +278,9 @@
           }
         },
         actions: {
-            startNewAnalysis: function(id) {
+            createNewAnalysis: function(id) {
                 return {
-                    type:'START_NEW_ANALYSIS',
+                    type:'CREATE_NEW_ANALYSIS',
                     id:id,
                     date: Date.now(),
                 }
@@ -327,14 +327,15 @@
             }
         },
         _handleGenerateIdResponse: function(e) {
-            this.dispatch('startNewAnalysis',this.$.idRequester.lastResponse.id);
+            let id = this.$.idRequester.lastResponse.id;
+            this.dispatch('createNewAnalysis',id); 
             this.animationConfig.exit[0].name = 'scale-down-animation';
             let cards = this._getNodesForCascade();
             this.animationConfig.exit[1].nodes = cards;
             this.animationConfig.entry[1].nodes = cards;
             delete this.animationConfig.exit[3].node;
             delete this.animationConfig.entry[3].node;
-            this.async(()=>this.dispatch('nextpage'));
+            this.async(()=>this.dispatch('loadAnalysis',id));
         },
         _transformForCard: function(analysis) {
             let item = analysis.value;
@@ -379,7 +380,7 @@
             this.animationConfig.entry[1].nodes = nodesForCascade;
             this.animationConfig.exit[3].node = target;
             this.animationConfig.entry[3].node = target;
-            this.dispatch('loadAnalysis',e.detail);
+            //this.dispatch('loadAnalysis',e.detail);
         },
         _hasError: function(lastError) {
             return lastError !== null;

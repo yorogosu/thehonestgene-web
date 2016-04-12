@@ -184,7 +184,7 @@ function* monitorStompEvents(channel) {
 
 function* watchWebSocket() {
   while (true) {
-    const action = yield effects.take(['START_NEW_ANALYSIS','LOAD_ANALYSIS']);
+    const action = yield effects.take(['LOAD_ANALYSIS']);
     try {
       if (subscription) {
         subscription.subscription.unsubscribe();

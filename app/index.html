@@ -83,6 +83,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <!-- endbuild -->
   <template is="dom-bind" id="app" strip-whitespace>
+      <hg-router></hg-router>
       <paper-header-panel class="flex">
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar">
@@ -100,10 +101,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
         <!-- Main Content -->
         <div class="fit layout vertical content">
-          <section class="wizard" hidden$="{{isStartPage(route)}}">
+          <section class="wizard" hidden$="{{isStartPage(page)}}">
             <timeu-wizard steps='["Gentic data","Imputation","Ancestry","Predictions"]' step="{{currentStepIx}}"></timeu-wizard>
           </section> 
-          <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{route}}" on-display-toast="onDisplayToastMessage">
+          <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{page}}" on-display-toast="onDisplayToastMessage">
             <hg-start-page data-route="start"></hg-start-page>
             <hg-genotype-page data-route="genotype"></hg-genotype-page>
             <hg-imputation-page data-route="imputation"></hg-imputation-page>

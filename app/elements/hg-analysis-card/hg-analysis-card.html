@@ -17,7 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 <dom-module id="hg-analysis-card">
-  <style>
+  <style include="shared-styles">
     :host {
       display: block;
     }
@@ -62,7 +62,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </div>
         <div class="card-actions">
-            <paper-button on-tap="_clickView">View</paper-button>
+            <paper-button on-tap="_clickView"><a href$="#/genotype/{{data.id}}" >View</a></paper-button>
             <paper-button on-tap="_clickDelete">Delete</paper-button>
         </div>
     </paper-card>

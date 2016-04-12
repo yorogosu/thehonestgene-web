@@ -2,6 +2,8 @@ const steps = ['genotype','imputation','ancestry','predictions'];
 
 const genotypeSubStep = function(state='list', action) {
     switch (action.type) {
+        case 'CREATE_NEW_ANALYSIS':
+            return 'list';
         case 'CHANGE_UPLOAD_PAGE':
             return action.page;
         case 'GENOTYPE_UPLOAD_STARTED':
@@ -17,6 +19,9 @@ const genotypeSubStep = function(state='list', action) {
 const currentStep = function(state ='start', action) {
     switch (action.type) {
         case 'LOAD_ANALYSIS':
+            if (action.step) {
+              return action.step;
+            }
             return 'genotype'; 
         case 'CHANGE_CURRENT_STEP':
             return action.step;
@@ -116,8 +121,12 @@ const uploadState = function(state ={state:null,progress:0,error:null,genotypeId
 const analysisId = function(state = null,action) {
     switch (action.type) {
         case 'LOAD_ANALYSIS':
-        case 'START_NEW_ANALYSIS':
             return action.id;
+        case 'CHANGE_CURRENT_STEP':
+            if (action.step === 'start') {
+                return null;
+            }
+            return state;
         case 'DELETE_ANALYSIS':
             if (action.id === state) {
                 return null;
@@ -321,7 +330,7 @@ const messageReducer = function(state, action, analysisType) {
 const analyses = function(state,action) {
    state = state || {}
    switch (action.type) {
-       case 'START_NEW_ANALYSIS':
+       case 'CREATE_NEW_ANALYSIS':
           state = {...state};
           state[action.id] = singleAnalysis({},action);
           return state;
@@ -340,7 +349,7 @@ const analyses = function(state,action) {
 
 const createDate = function(state = null,action) {
     switch (action.type) {
-        case 'START_NEW_ANALYSIS':
+        case 'CREATE_NEW_ANALYSIS':
             return action.date;
         default:
             return state;

@@ -8,11 +8,11 @@
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
-  app.route = 'start';
+  app.page = store.getState().currentStep;
   store.subscribe(function() {
-     var step = store.getState().currentStep;
-     app.route =  step;
-     app.currentStepIx = steps.indexOf(step)+1; 
+    var step = store.getState().currentStep;
+    app.page =  step;
+    app.currentStepIx = steps.indexOf(step)+1; 
   });
   // Sets app default base URL
   app.baseUrl = '/';
@@ -84,16 +84,16 @@
   };
   
   app.isStartPage = function(route)  {
-      return route === 'start';
+    return route === 'start';
   };
   app.displayError = function(msg) {
-      this.$.toast.text = msg;
-      this.$.toast.show();  
+    this.$.toast.text = msg;
+    this.$.toast.show();  
   };
   app.onDisplayToastMessage = function(e) {
     this.displayError(e.detail.text);  
   };
   
-  app.addEventListener('display-error',(e)=>this.displayError(e.detail));
+  document.addEventListener('display-error',(e)=>app.displayError(e.detail));
 
 })(document);

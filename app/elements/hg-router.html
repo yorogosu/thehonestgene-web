@@ -1,0 +1,118 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/carbon-route/carbon-location.html">
+<link rel="import" href="../bower_components/carbon-route/carbon-route.html">
+
+<dom-module id="hg-router">
+  <style include="shared-styles">
+    :host {
+      
+    }
+  </style>
+  <template>
+      <carbon-location route="{{route}}"  id="carbonLocation" use-hash-as-path></carbon-location>
+      <carbon-route
+            active="{{active}}"
+            route="{{route}}"
+            pattern="/:step/:id"
+            data="{{page}}"
+            tail="{{tail}}">
+      </carbon-route>
+  </template>
+  <script>
+    (function() {
+      'use strict';
+      
+      Polymer({
+        is: 'hg-router',
+        behaviors: [ ReduxBehavior ],
+        
+        properties: {
+            page: {
+                type:Object,
+                value: function(){ return {};},
+            },
+            currentAnalysisId: {
+                type:String,
+                statePath: 'id',
+            },
+            currentStep: {
+                type:String,
+                statePath:'currentStep',
+            },
+            active:{
+                type: Boolean,
+                observer:'_onInValidRoute'
+            }
+        },
+        observers: [
+          '_changeRoute(page)',
+          '_changeStepOrAnalysisId(currentStep,currentAnalysisId)',  
+        ],
+        actions: {
+             changeStep: function(step) {
+                return {
+                    type: 'CHANGE_CURRENT_STEP',
+                    step,
+                }
+            },
+            loadAnalysis: function(id,step)  {
+                return {
+                    type: 'LOAD_ANALYSIS',
+                    id,
+                    step,
+                }
+            },
+        },
+        _initialized : false,
+        ready: function() {
+            // required otherwise if navigating to a sub-route for the first time will be reset, by the localstorage initial redux state update 
+            this._initialized = true;
+        },
+        _changeRoute: function(page) {
+            // required because otherwise 
+            this.debounce('route_update',()=>{
+                let step = page.step;
+                let id = page.id;
+                if (!step || (step !== 'start' && steps.indexOf(step) === -1) || (step === 'start' && id) || (id && ! (id in this.getState().analyses))) {
+                    this.async(()=> {
+                        if ((step !== 'start' && steps.indexOf(step) === -1) || (id && ! (id in this.getState().analyses))) {
+                            this._notify('Can\'t find: ' + window.location.href + '. Redirected you to Start');
+                        }
+                        this.page = {step:'start',id:null}
+                    });
+                }
+                else {
+                    if (id && this.getState().id !== id) {
+                        this.dispatch('loadAnalysis',id,step)
+                    }
+                    else if (this.getState().currentStep !== step) {
+                        this.dispatch('changeStep',step);
+                    }
+                }
+            },1);
+        },
+        _changeStepOrAnalysisId: function(step, id) {
+            if (!this._initialized) {
+                return;
+            }
+            this.debounce('state_changed',()=>{
+                if (this.page.step !== step || (this.page.id !== id && this.page.id !== '' && id !== null)) {
+                    this.page = {step,id};
+                }
+            })
+        },
+        _onInValidRoute: function(valid) {
+            if (!valid) {
+                this.async(()=> {
+                    this.$.carbonLocation.set('route.path','/start/');
+                })
+            }
+        },
+        _notify:function(msg) {
+            this.fire('display-error',msg);
+        },
+      });
+    })();
+  </script>
+</dom-module>
+

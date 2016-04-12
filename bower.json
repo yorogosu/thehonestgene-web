@@ -14,7 +14,8 @@
     "neon-animation": "PolymerElements/neon-animation#1.1.0",
     "vaadin-grid": "^1.0.0",
     "moment-element": "^0.3.2",
-    "flip-card": "timeu/flip-card#master"
+    "flip-card": "timeu/flip-card#master",
+    "carbon-route": "PolymerElements/carbon-route#^0.8.4"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
