@@ -338,8 +338,10 @@
             let item = analysis.value;
             let id = analysis.name;
             let genotype = null;
+            let version = null;
             if (item.genotypeStep.data !== null) {
-                genotype = item.genotypeStep.data.genotype ? item.genotypeStep.data.genotype : 'N/A';
+                genotype = item.genotypeStep.data.source;
+                version = item.genotypeStep.data.version;
             }
             let imputation = item.imputationStep.state.state === 'FINISHED';
             let ancestry = null;
@@ -350,7 +352,7 @@
             for (let trait of this.getState().traits) {
                 predictions.push({name:trait.title,logourl:trait.logourl,state:trait.name in item.riskPredictionStep.runningAnalysis})
             }
-            return {date:item.date,genotype,imputation,ancestry,predictions,id}
+            return {date:item.date,genotype,version,imputation,ancestry,predictions,id}
         },
         _deleteAnalysis: function(e) {
             this.$.deleteDialog.analysisId =e.detail;

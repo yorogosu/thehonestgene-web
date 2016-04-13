@@ -98,7 +98,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  <moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element>
             </div>
             <div class$="analysis {{_computeCheckClass(data.genotype)}}">
-                <span>Genetic Data <span class="genotype">{{data.genotype}}</span></span><iron-icon icon$="{{_computeIcon(data.genotype)}}"></iron-icon>
+                <span>Genetic Data <span class="genotype">{{data.genotype}} {{data.version}}</span></span><iron-icon icon$="{{_computeIcon(data.genotype)}}"></iron-icon>
             </div>
             <div class$="analysis {{_computeCheckClass(data.imputation)}}">
                 <span>Imputation</span><iron-icon  icon$="{{_computeIcon(data.imputation)}}"></iron-icon>
@@ -177,12 +177,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     _clickDelete: function() {
         this.fire('delete-analysis',this.data.id);
     },
-    _getPredictions: function(predictions) {
-        if (!predictions) {
-            return "N/A";
-        }
-        return predictions.join(", ")
-    }
   });
 })();
 </script>
