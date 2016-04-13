@@ -147,6 +147,10 @@
             type: String,
             statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].ancestryStep.state:undefined}
            },
+           genotypeData: {
+             type: Object,
+             statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].genotypeStep.data:undefined}
+           },
            isFinished: {
               type: Boolean,
               computed:'_isFinished(state.state)'
@@ -168,7 +172,7 @@
           datasource : {
               type:Object,
               value: function() { return emptyDataSource;},
-              computed: '_computeDataSource(data.pc1,data.pc2)'
+              computed: '_computeDataSource(genotypeData,data.pc1,data.pc2)'
           }
         },
         listeners: {
@@ -217,9 +221,13 @@
               }
               return emptyOptions;
            },
-          _computeDataSource: function(pc1,pc2) {
+          _computeDataSource: function(genotypeData,pc1,pc2) {
               if (pc1 && pc2) {
-                return `/api/plotpcs?pc1=${pc1}&pc2=${pc2}`;
+                let platform = genotypeData.source;
+                if (genotypeData.version && genotypeData.version !== '') { 
+                    platform += '_'+genotypeData.version;
+                }
+                return `/api/plotpcs?platform=${platform}&pc1=${pc1}&pc2=${pc2}`;
               }
               return emptyDataSource;
           },
