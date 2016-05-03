@@ -24,12 +24,15 @@ const persistState = debounce(function() {
 }, 1000);
 
 
-const createSagaMiddleware = ReduxSaga.default
+const createSagaMiddleware = ReduxSaga.default;
+const sagaMiddleware = createSagaMiddleware();
 
 var store = Redux.createStore(rootReducer,initialState,
     Redux.compose(
-        Redux.applyMiddleware(createSagaMiddleware(rootSaga)),
+        Redux.applyMiddleware(sagaMiddleware),
         window.devToolsExtension ? window.devToolsExtension() : f => f));
+
+sagaMiddleware.run(rootSaga);
 
 store.subscribe(()=> {
   persistState();
