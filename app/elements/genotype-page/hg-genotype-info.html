@@ -405,7 +405,7 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
      },
     _onRenderChart: function(e) {
          if (Polymer.dom(this).classList.contains('iron-selected')) {
-             let chart = e.srcElement;
+             let chart = Polymer.dom(e).rootTarget;
              chart.style.visibility = 'visible';
          }
      },

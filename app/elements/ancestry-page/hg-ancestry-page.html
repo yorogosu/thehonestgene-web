@@ -235,7 +235,7 @@
           },
           _onRenderChart: function(e) {
                 if (Polymer.dom(this).classList.contains('iron-selected')) {
-                    let chart = e.srcElement;
+                    let chart = Polymer.dom(e).rootTarget;
                     chart.style.visibility = 'visible';
                 }
            },

@@ -351,9 +351,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      },
      _onRenderChart: function(e) {
          if (Polymer.dom(this).classList.contains('iron-selected')) {
-             let chart = e.srcElement;
+             let chart = Polymer.dom(e).rootTarget;
              chart.style.visibility = 'visible';
-             if (e.srcElement === this.$.pieChart) {
+             if (chart === this.$.pieChart) {
                this._positionDonutLabel();
              }
          }
