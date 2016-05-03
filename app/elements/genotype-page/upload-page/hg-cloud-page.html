@@ -191,6 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            this.async(()=>this.cloudpage = page);
         },
        _onSelectGenotype: function(e) {
+           ga('send', 'event', 'Cloud', 'upload',this.currentProvider);
            this.dispatch('transferGenotype',this.currentProvider,e.detail);
         },
         _getSelectedProvider: function(currentProvider) {
@@ -211,6 +212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         var url = win.document.URL;
                         var code = this._gup(url, 'code');
                         win.close();
+                        ga('send', 'event', 'Cloud', 'authenticate',provider);
                         this.dispatch('retrieveGenotypes',provider,code);
                     }
                 } catch (e) {

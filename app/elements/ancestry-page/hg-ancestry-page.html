@@ -208,11 +208,13 @@
             _onCancelBtnClick: function() {
              let id = this.getState().id;
               if (id) {
+                  ga('send', 'event', 'Ancestry', 'cancel');
                   this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'ancestry',id})
                   this.fire('display-toast',{'text':'Stopping ancestry...'});
               }
            },
            _onStartBtnClick: function(e) {
+              ga('send', 'event', 'Ancestry', 'start');
               this.dispatch({type:'RUN_ANALYSIS',analysisType:'ancestry'})
            },
            _computeOptions: function(pc1,pc2) {

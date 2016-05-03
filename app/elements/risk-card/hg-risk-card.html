@@ -298,6 +298,7 @@
             return classes.join(' ');
         },
         _switchSides:function() {
+          ga('send', 'event', 'PredictionCard', 'flipped',this.trait.name);
           this.$.card.toggle();  
         },
         _computeDataTable: function(trait,analysis) {

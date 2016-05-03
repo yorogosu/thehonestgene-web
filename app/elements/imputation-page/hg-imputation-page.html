@@ -340,11 +340,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      _onCancelBtnClick: function() {
        let id = this.getState().id;
        if (id) {
+         ga('send', 'event', 'Imputation', 'cancel');
          this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'imputation',id})
          this.fire('display-toast',{'text':'Stopping imputation...'});
        }  
      },
      _onStartBtnClick: function(e) {
+        ga('send', 'event', 'Imputation', 'start');
         this.dispatch({type:'RUN_ANALYSIS',analysisType:'imputation'})
      },
      _onRenderChart: function(e) {

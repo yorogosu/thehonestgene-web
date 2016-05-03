@@ -224,6 +224,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (data.files.length <= 0) {
             return;
           }
+          ga('send', 'event', 'File', 'dragdrop');
           this.dispatch('selectFile',data.files[0]);
         },
         _onDragOver: function(event) {
@@ -261,6 +262,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         },
         onCancel: function() {
+          ga('send', 'event', 'File', 'cancel');
           this.reset();
         },
         _updateUploadState: function(state) {
@@ -280,9 +282,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (!this.file) {
             return;
           }
+          ga('send', 'event', 'File', 'upload');
           this.dispatch('uploadFile',this.file);
         },
         _onSelectFile: function(e) {
+          ga('send', 'event', 'File', 'select');
           this.dispatch('selectFile',e.target.files[0]);
         },
         reset: function() {

@@ -199,6 +199,9 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
              let id = this.getState().id;
              if (id) {
                const traits = this._getRunningPredictions(id);
+               for (let trait of traits) {
+                  ga('send', 'event', 'Prediction', 'cancel',trait);
+               }
                this.dispatch({type: 'CANCEL_ANALYSIS',analysisType:'riskprediction',id,traits})
                this.fire('display-toast',{'text':'Stopping risk prediction...'});
               }
@@ -250,7 +253,11 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
               }
           },
           _onStartAnalysis: function() {
-            this.dispatch('startAnalysis',Object.keys(this.selectedTraits));  
+            const traitKeys = Object.keys(this.selectedTraits);
+            for (let key of traitKeys) {
+                ga('send', 'event', 'Prediction', 'start',key);
+            }
+            this.dispatch('startAnalysis',traitKeys);  
           },
           _checkItemSelected: function(item,selectedTraits) {
               if (item.name in selectedTraits) {

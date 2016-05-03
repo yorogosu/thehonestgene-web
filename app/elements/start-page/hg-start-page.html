@@ -321,6 +321,10 @@
         _closeConsentDialog: function(e) {
             if (e.detail.confirmed) {
                 this.$.idRequester.generateRequest();
+                ga('send', 'event', 'Analysis', 'create');
+                ga('send', 'event', 'Consent', 'approved');
+            } else {
+               ga('send', 'event', 'Consent', 'declined');
             }
         },
         _handleGenerateIdResponse: function(e) {
@@ -360,6 +364,7 @@
         },
         _closeDeleteDialog: function(e) {
             if (e.detail.confirmed) {
+                ga('send', 'event', 'Analysis', 'delete');
                 // TODO animate it out
                 this.animationConfig.exit[0].name = 'fade-out-animation';
                 let id = this.$.deleteDialog.analysisId;
