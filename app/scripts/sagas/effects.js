@@ -102,6 +102,12 @@ function startRiskprediction(id) {
     .then(parseJSON);
 }
 
+function loadPcsData(platform,pc1,pc2) {
+  return fetch(`/api/plotpcs?platform=${platform}&pc1=${pc1}&pc2=${pc2}`,{headers:headers})
+    .then(checkStatus)
+    .then(parseJSON);
+}
+
 function loadImputationData(taskid) {
   return fetch(`/api/imputation?task_id=${taskid}&wait=1`, {headers: headers})
     .then(checkStatus)

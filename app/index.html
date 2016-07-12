@@ -97,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Application name -->
           <div class="middle middle-container">
-            <div class="app-name">TheHonestGene</div>
+            <div class="app-name">TheHonestGene (BETA)</div>
           </div>
 
           <!-- Application sub title -->
@@ -108,7 +108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Main Content -->
         <div class="fit layout vertical content">
           <section class="wizard" hidden$="{{isStartPage(page)}}">
-            <timeu-wizard steps='["Gentic data","Imputation","Ancestry","Predictions"]' step="{{currentStepIx}}"></timeu-wizard>
+            <timeu-wizard steps='["Genetic data","Imputation","Ancestry","Predictions"]' step="{{currentStepIx}}"></timeu-wizard>
           </section> 
           <neon-animated-pages attr-for-selected="data-route" class="flex" id="pages" selected="{{page}}" on-display-toast="onDisplayToastMessage">
             <hg-start-page data-route="start"></hg-start-page>

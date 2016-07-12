@@ -119,19 +119,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         properties: {
           animationConfig: {
             value: function() {
-                   return {
-                       'entry': [
-                        {animatable: this.$.list, type: 'entry'},
-                   ],
-                     'exit': [
-                        {animatable: this.$.list, type: 'exit'},
-                    ]
-                   }  
-                }
+                return {
+                    'entry': [
+                    {animatable: this.$.list, type: 'entry'},
+                ],
+                    'exit': [
+                    {animatable: this.$.list, type: 'exit'},
+                ]
+                }  
+            }
           },
           cloudpage: {
               type:String,
               value: 'list',
+              observer:'_onChangeCloudPage',
           },
           providers: {
             type: Array,
@@ -236,6 +237,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         _onCloseDetail: function() {
             this.dispatch('selectProvider',null);
+        },
+        _onChangeCloudPage: function(newPage) {
+            let subPage = this.$$('[cloud-data-route="'+newPage+'"]');
+            this.animationConfig.entry[0] =  {animatable: subPage, type: 'entry'};
+            this.animationConfig.exit[0] =  {animatable: subPage, type: 'exit'};
         },
       });
     })();

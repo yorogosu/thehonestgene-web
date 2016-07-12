@@ -68,13 +68,12 @@
       Polymer({
         is: 'hg-upload-options',
         behaviors: [
-          Polymer.NeonSharedElementAnimatableBehavior
+          Polymer.NeonSharedElementAnimatableBehavior,
+          Polymer.NeonPageBehavior
         ],
         properties: {
-          animationConfig: {
+          animationConfigFile: {
             value: function() {
-              var cards = Polymer.dom(this.root).querySelectorAll('.card');
-              var cardsArray = Array.prototype.slice.call(cards);
               return {
                 'entry': [{
                   name: 'hero-animation',
@@ -88,16 +87,6 @@
                     name: 'fade-in-animation',
                     node: this.$.infocard,
                 }],
-                "entry2":[{
-                  name: 'cascaded-animation',
-                  animation: 'transform-animation',
-                  transformFrom: 'translateY(60vh)',
-                  nodes:cardsArray,
-                  timing: {delay: 100} 
-                },{
-                    name:'scale-up-animation',
-                    node:this.$.infocard,
-                }],
                 'exit': [{
                   name: 'hero-animation',
                   id: 'hero',
@@ -110,24 +99,75 @@
                     name: 'fade-out-animation',
                     node: this.$.infocard,
                 }],
-                'exit2':[{
-                  name: 'cascaded-animation',
-                  animation: 'transform-animation',
-                  transformTo: 'translateY(60vh)',
-                  nodes:cardsArray,
-                },{
-                    name: 'fade-out-animation',
-                    node: this.$.infocard,
-                }]
               };
             }
+          },
+          animationConfigCloud: {
+              value: function() {
+                  return {
+                    'entry': [{
+                    name: 'hero-animation',
+                    id: 'hero',
+                    toPage: this
+    
+                    }, {
+                    name: 'transform-animation'
+                    },
+                    {
+                        name: 'fade-in-animation',
+                        node: this.$.infocard,
+                    }],
+                    'exit': [{
+                    name: 'hero-animation',
+                    id: 'hero',
+                    fromPage: this,
+                    },
+                    {
+                    name: 'transform-animation',
+                    },
+                    {
+                        name: 'fade-out-animation',
+                        node: this.$.infocard,
+                    }],
+                };
+              }
+          },
+          animationConfig: {
+              value: function() {
+                var cards = Polymer.dom(this.root).querySelectorAll('.card');
+                var cardsArray = Array.prototype.slice.call(cards);
+                return {
+                    "entry":[{
+                        name: 'cascaded-animation',
+                        animation: 'transform-animation',
+                        transformFrom: 'translateY(60vh)',
+                        nodes:cardsArray,
+                        timing: {delay: 100} 
+                        },{
+                            name:'scale-up-animation',
+                            node:this.$.infocard,
+                        }],
+                    'exit':[{
+                        name: 'cascaded-animation',
+                        animation: 'transform-animation',
+                        transformTo: 'translateY(60vh)',
+                        nodes:cardsArray,
+                        },{
+                            name: 'fade-out-animation',
+                            node: this.$.infocard,
+                        }]
+                }; 
+              }
           }
         },
         _onTap: function(event) {
           var target = event.currentTarget;
           if (true) {
             // configure the page animation
-            this.sharedElements = {
+            this.sharedElementsCloud = {
+              'hero': target,
+            };
+             this.sharedElementsFile = {
               'hero': target,
             };
             var otherElem;
@@ -141,10 +181,15 @@
               otherElem = this.$.file;
   
             }
-            this.animationConfig.exit[1].node = otherElem;
-            this.animationConfig.exit[1].transformTo = 'translateX(' + direction + ')';
-            this.animationConfig.entry[1].node = otherElem;
-            this.animationConfig.entry[1].transformFrom = 'translateX(' + direction + ')';
+            this.animationConfigFile.exit[1].node = otherElem;
+            this.animationConfigFile.exit[1].transformTo = 'translateX(' + direction + ')';
+            this.animationConfigFile.entry[1].node = otherElem;
+            this.animationConfigFile.entry[1].transformFrom = 'translateX(' + direction + ')';
+            
+            this.animationConfigCloud.exit[1].node = otherElem;
+            this.animationConfigCloud.exit[1].transformTo = 'translateX(' + direction + ')';
+            this.animationConfigCloud.entry[1].node = otherElem;
+            this.animationConfigCloud.entry[1].transformFrom = 'translateX(' + direction + ')';
             this.fire('card-click',target.id);
           }
         }

@@ -10,7 +10,7 @@
         width:100%;
         visibility: hidden;
         @apply(--layout-flex);
-        min-height:500px;
+        min-height:800px;
     }
     section  {
         @apply(--layout-vertical);
@@ -23,6 +23,10 @@
         margin-top:20px;
         @apply(--layout-flex);
         @apply(--layout-vertical);
+    }
+    .buttons {
+         @apply(--layout-horizontal);
+         @apply(--layout-self-end);
     }
   </style>
   <template>
@@ -48,8 +52,8 @@
             <div id="chartcontainer" class="chartcontainer">
                 <google-chart id="chart"
                     type='scatter'
-                    options="{{options}}""
-                    data = "{{datasource}}"
+                    options="[[options]]""
+                    data = "{{_computeDataSource(datasource)}}"
                 </google-chart>
             </div>
          </section>
@@ -59,13 +63,13 @@
       'use strict';
       
       
-      var emptyDataSource = [['PC1','EUR','ASA','AFR']];
+      var emptyDataSource = [['PC1','East Asian','African','Ad Mixed American']];
       for (let i=0;i<200;i++) {
           emptyDataSource.push([Math.random(),Math.random(),Math.random(),Math.random()]);
       }
       
       var defaultOptions = {
-          title: "Are you european?", 
+          title: "What is your genetic ancestry?", 
           dataOpacity:0.5, 
           hAxis: {
               gridlines:{
@@ -103,6 +107,16 @@
             }, 
         };
         
+        const popMap = {
+            EUR: {name: 'European',color:'#3366cc'},
+            EAS: {name: 'East Asian',color:'#dc3912'},
+            AFR: {name: 'African',color:'#109618'},
+            AMR: {name: 'Ad Mixed American',color:'#990099'},
+            SAS: {name: 'South Asian',color:'#ff9900'},
+            YOU: {name: "That's you",color:'black'},
+        };
+        
+     
         var emptyOptions = Object.assign({},defaultOptions);
         emptyOptions.colors = ['#ccc','#ccc','#ccc'];
         emptyOptions.title='Analysis is running...';
@@ -141,7 +155,7 @@
           }, 
           data: {
               type:Object,
-              statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].ancestryStep.data:undefined}
+              statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].ancestryStep.data:null}
           },
           state: {
             type: String,
@@ -149,7 +163,7 @@
            },
            genotypeData: {
              type: Object,
-             statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].genotypeStep.data:undefined}
+             statePath: function(state){ return state.id in state.analyses ? state.analyses[state.id].genotypeStep.data:null}
            },
            isFinished: {
               type: Boolean,
@@ -166,15 +180,17 @@
           options: {
             type: Object,
             value: function() { return emptyOptions;},
-            computed: '_computeOptions(data.pc1,data.pc2)'
-              
+            computed: '_computeOptions(datasource)'
           },
           datasource : {
               type:Object,
               value: function() { return emptyDataSource;},
-              computed: '_computeDataSource(genotypeData,data.pc1,data.pc2)'
-          }
+          },
+          
         },
+        observers:[
+           '_fetchDataForPcs(genotypeData,data)'
+        ],
         listeners: {
           'iron-resize': '_onIronResize',
           'google-chart-render':"_onRenderChart",
@@ -217,19 +233,24 @@
               ga('send', 'event', 'Ancestry', 'start');
               this.dispatch({type:'RUN_ANALYSIS',analysisType:'ancestry'})
            },
-           _computeOptions: function(pc1,pc2) {
-               if (pc1 && pc2) {
-                return defaultOptions;
+           _computeOptions: function(data) {
+               if (data !== emptyDataSource) {
+                let options = {...defaultOptions};
+                let series = {...options.series};
+                for (let i=0;i<data[0].length-2;i++) {
+                    series[i] = {color:popMap[data[0][i+1]].color};
+                }
+                options.series = series;
+                return options;
               }
               return emptyOptions;
            },
-          _computeDataSource: function(genotypeData,pc1,pc2) {
-              if (pc1 && pc2) {
-                let platform = genotypeData.source;
-                if (genotypeData.version && genotypeData.version !== '') { 
-                    platform += '_'+genotypeData.version;
+          _computeDataSource: function(data) {
+              if (data !== emptyDataSource) {
+                for (let i=1;i<data[0].length;i++) {
+                    data[0][i] = popMap[data[0][i]].name;
                 }
-                return `/api/plotpcs?platform=${platform}&pc1=${pc1}&pc2=${pc2}`;
+                return data;
               }
               return emptyDataSource;
           },
@@ -245,7 +266,25 @@
                       this.$.chart.drawChart();
                   });
                }
-          }
+          },
+          _fetchDataForPcs: function(genotypeData,data) {
+              this.debounce('plotpcs', ()=> { 
+                if (data && data.pc1 && data.pc2 && genotypeData) {
+                    const pc1 = data.pc1;
+                    const pc2 = data.pc2;
+                    let platform = genotypeData.source;
+                    if (genotypeData.version && genotypeData.version !== '') { 
+                        platform += '_'+genotypeData.version;
+                    }
+                    loadPcsData(platform,pc1,pc2).then((data) =>{
+                        this.datasource = data;
+                    });
+                }
+                else {
+                    this.datasource = emptyDataSource;
+                }
+              });
+            }
           
       });
     })();

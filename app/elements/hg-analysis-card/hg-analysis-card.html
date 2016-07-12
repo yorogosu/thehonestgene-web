@@ -20,7 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style include="shared-styles">
     :host {
       display: block;
-      width:250px;
+      width:280px;
     }
    
    paper-card {
@@ -39,10 +39,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .header {
         margin-top:1px;
         margin-bottom:16px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
     }
     .header .title {
         color: var(--primary-text-color);
         @apply(--paper-font-headline);
+    }
+    .header .time {
+        margin-left:20px;
     }
     .header moment-element {
       color: var(--secondary-text-color);
@@ -89,13 +94,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin-left:8px;
     }
     
+    .avatar img {
+        width:50px;
+        height:50px;
+    }
+    
+    a  {
+        text-decoration:none;
+    }
+    
   </style>
   <template>
       <paper-card>
         <div class="card-content">
             <div class="header">
-                 <div class="title">{{_computeDaysPassed(data.date)}}</div>
-                 <moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element>
+                 <div class="avatar">
+                     <img src$="images/{{_computeAvatar(data.gender)}}"></img>
+                 </div>
+                 <div class="time">
+                    <div class="title">{{_computeDaysPassed(data.date)}}</div>
+                    <moment-element id="date" datetime="{{data.date}}" output-format="MM-DD-YYYY"></moment-element>
+                 </div>
             </div>
             <div class$="analysis {{_computeCheckClass(data.genotype)}}">
                 <span>Genetic Data <span class="genotype">{{data.genotype}} {{data.version}}</span></span><iron-icon icon$="{{_computeIcon(data.genotype)}}"></iron-icon>
@@ -120,7 +139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
         </div>
         <div class="card-actions">
-            <paper-button on-tap="_clickView"><a href$="#/genotype/{{data.id}}" >View</a></paper-button>
+            <a href$="#/genotype/{{data.id}}" ><paper-button on-tap="_clickView">View</paper-button></a>
             <paper-button on-tap="_clickDelete">Delete</paper-button>
         </div>
     </paper-card>
@@ -158,6 +177,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   },
   _onNeonAnimationFinish: function() {
     console.log('animation done!');
+  },
+  _computeAvatar: function(gender) {
+      let avatar = 'avatar_generic.png';
+      if (gender === 'm') {
+          avatar = 'avatar_male.png';
+      }
+      else if (gender === 'f') {
+          avatar = 'avatar_female.png';
+      }
+      return avatar; 
   },
     _computeDaysPassed: function(date) {
         return moment(date).fromNow();

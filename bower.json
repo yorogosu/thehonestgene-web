@@ -11,11 +11,12 @@
     "polymer-redux": "tur-nr/polymer-redux",
     "google-chart": "GoogleWebComponents/google-chart#master",
     "timeu-wizard": "^1.0.0",
-    "neon-animation": "PolymerElements/neon-animation#1.1.0",
+    "neon-animation": "PolymerElements/neon-animation#^1.1.0",
     "vaadin-grid": "^1.0.0",
     "moment-element": "^0.3.2",
     "flip-card": "timeu/flip-card#master",
-    "carbon-route": "PolymerElements/carbon-route#^0.8.4"
+    "carbon-route": "PolymerElements/carbon-route#^0.8.4",
+    "neon-page-behavior": "^1.2.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

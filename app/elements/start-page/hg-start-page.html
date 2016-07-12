@@ -32,14 +32,6 @@
             @apply(--layout-around-justified);
             @apply(--layout-horizontal);
         }
-        
-        .card {
-            width: 250px;
-            height: 250px;
-            @apply(--layout-center-center);
-            @apply(--layout-vertical);
-        }
-        
         paper-button {
         }  
         
@@ -119,12 +111,13 @@
         }
     </style>
     <template>
-        <div class="welcome-title">Welcome<span hidden$="{{!hasData}}"> back</span> to TheHonestGene</div>
+        <div class="welcome-title">Welcome<span hidden$="{{!hasData}}"> back</span> to TheHonestGene (BETA)</div>
         <div class="welcome-text">
             <div><h3 >Open & Free</h3>TheHonestGene is an open data platform for the alternative analysis of genetic data produced by personal genomics and biotechnology companies like 23andme, ancestryDNA and FamilyTreeDNA.</div>
-            <div><h3 >What can you do?</h3>In its current version, TheHonestGene offers reliable information about genetic ancestry, as well as predictions about the user’s height and her/his risk for diabetes and schizophrenia.</div>
+            <div><h3 >What can you do?</h3>In its current version, TheHonestGene offers reliable information about genetic ancestry, as well as predictions about the user’s <b>height</b> and <b>BMI</b>.</div>
+            <div><h3 >Accurate</h3>Unlike existing solutions, TheHonestGene calculates a <b>truely polygenic</b> prediction which in general yields more accurate predictions for polygenic traits when sufficient training data is available.</div>
             <div><h3 >Fast & Precise</h3>TheHonestGene uses cutting-edge prediction algorithms that are tuned to offer the best compromise between accuracy and speed. Typically, results are returned within minutes since data upload.</div>
-            <div><h3 >Contribute to Science</h3>TheHonestGene ultimately offers the user the possibility of anonymously donating her/his genetic data for scientific research.</div>
+            <!--<div><h3 >Contribute to Science</h3>TheHonestGene ultimately offers the user the possibility of anonymously donating her/his genetic data for scientific research.</div>-->
         </div>
         <section class="sub_section">
             <div class="layout vertical section">
@@ -184,7 +177,7 @@
             <h3>Potential Benefits</h3>
             <p>By using TheHonestGene you will learn more about your genome for free. By optionnally donating your genetic data you can make a big contribution to science and help drive scientific research forward.</p>
             <h3>Contact</h3>
-            <p>X is the investigator in charge of the study at Y. If you have questions, please email us: EMAIL
+            <p>X is the investigator in charge of the study at Y. If you have questions, please email us: suggestions@thehonestgene.org
                 Address
             </p>
             <h3>Consent</h3>
@@ -224,7 +217,7 @@
       Polymer({
         is: 'hg-start-page',
         behaviors: [
-          Polymer.NeonAnimatableBehavior, ReduxBehavior
+          Polymer.NeonAnimatableBehavior, ReduxBehavior, Polymer.NeonPageBehavior
         ],
         properties: {
           consentChecked: {
@@ -324,7 +317,7 @@
                 ga('send', 'event', 'Analysis', 'create');
                 ga('send', 'event', 'Consent', 'approved');
             } else {
-               ga('send', 'event', 'Consent', 'declined');
+               ga('send', 'event', 'Consent', 'declined'); 
             }
         },
         _handleGenerateIdResponse: function(e) {
@@ -343,9 +336,11 @@
             let id = analysis.name;
             let genotype = null;
             let version = null;
+            let gender = null;
             if (item.genotypeStep.data !== null) {
                 genotype = item.genotypeStep.data.source;
                 version = item.genotypeStep.data.version;
+                gender = item.genotypeStep.data.gender;
             }
             let imputation = item.imputationStep.state.state === 'FINISHED';
             let ancestry = null;
@@ -356,7 +351,7 @@
             for (let trait of this.getState().traits) {
                 predictions.push({name:trait.title,logourl:trait.logourl,state:trait.name in item.riskPredictionStep.runningAnalysis})
             }
-            return {date:item.date,genotype,version,imputation,ancestry,predictions,id}
+            return {date:item.date,genotype,version,gender,imputation,ancestry,predictions,id}
         },
         _deleteAnalysis: function(e) {
             this.$.deleteDialog.analysisId =e.detail;

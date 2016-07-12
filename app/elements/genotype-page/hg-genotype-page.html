@@ -45,26 +45,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       
       Polymer({
         is: 'hg-genotype-page',
-        behaviors: [ Polymer.NeonAnimatableBehavior, Polymer.IronResizableBehavior, ReduxBehavior ],
+        behaviors: [Polymer.NeonAnimatableBehavior, Polymer.IronResizableBehavior, ReduxBehavior],
         
         properties: {
             animationConfig: {
                 value: function() {
                    return {
                        'entry': [
-                        {animatable: this.$.genotpyeInfo, type: 'entry2'},
-                        {animatable: this.$.list, type: 'entry2'}
+                        {animatable: this.$.list, type: 'entry'},
+                        {animatable: this.$.genotpyeInfo, type: 'entry'},
                     ],
                     'exit': [
-                        {animatable: this.$.genotpyeInfo, type: 'exit2'},
-                        {animatable: this.$.list, type: 'exit2'},
+                        {animatable: this.$.list, type: 'exit'},
+                        {animatable: this.$.genotpyeInfo, type: 'exit'}
                     ]
                    }  
                 },
             },
           route: {
               type: String,
-              statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].genotypeStep.step : this.route} 
+              statePath: function(state) { return state.id in state.analyses ? state.analyses[state.id].genotypeStep.step : this.route},
+              observer:'_onChangeRoute', 
           },  
           uploadState: {
              type: String,
@@ -89,6 +90,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
           
         },
+        listeners: {
+        'entry-animation-start': 'onEntryStart',
+        'entry-animation-finish': 'onEntryFinish',
+        'exit-animation-start': 'onExitStart',
+        'exit-animation-finish': 'onExitFinish'
+      },
         actions: {
             changePage: function(page) {
                 return { 
@@ -105,8 +112,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               return 'info';  
           }, 
         _updateGenotypeData : function(data) {
-            if (!data)
-               return null;
+            if (!data) {
+                this.$.genotpyeInfo.reset();
+                return null;
+            }
             var annotations =  this._getAnnotationTypesFromData(data);
             var dataForNumberOfSNPS = [['Chr','# of SNPs']];
             var dataForAnnotations = [['Annotation','# of SNPs']];
@@ -171,6 +180,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            }
            return this.dispatch('changePage',page);
         },
+        _onChangeRoute: function(newRoute,oldRoute) {
+            /*let subPage = this.$$('[route="'+newRoute+'"]');
+            this.animationConfig.entry[0] =  {animatable: subPage, type: 'entry'};
+            this.animationConfig.exit[0] =  {animatable: subPage, type: 'exit'};*/
+        },
+      onEntryStart: function(e) {
+        
+      },
+      onEntryFinish: function(e) {
+      },
+      onExitStart: function(e) {
+      },
+      onExitFinish: function(e) {
+      }
       });
     })();
   </script>

@@ -57,10 +57,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         is: 'hg-file-upload-page',
     
         behaviors: [
-          Polymer.NeonSharedElementAnimatableBehavior
+          Polymer.NeonSharedElementAnimatableBehavior,
+          Polymer.NeonPageBehavior
         ],
         properties: {
-          sharedElements: {
+          sharedElementsList: {
+            value: function() {
+              return {
+                'hero': this.$.infocard, 
+              };
+            }
+          },
+          sharedElementsInfo: {
             value: function() {
               return {
                 'hero': this.$.infocard, 
@@ -68,6 +76,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           },
           animationConfig: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'scale-up-animation',
+                  node: this.$.dropzonecontainer
+                }],
+                'exit': [
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.dropzonecontainer
+                }],
+              }
+            }
+          },
+          animationConfigList: {
             value: function() {
               return {
                 'entry': [{
@@ -83,6 +106,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   name: 'hero-animation',
                   id: 'hero',
                   fromPage: this
+                },
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.dropzonecontainer
+                }],
+              };
+            }
+          },
+          animationConfigInfo: {
+            value: function() {
+              return {
+                'entry': [{
+                  name: 'scale-up-animation',
+                    node: this.$.infocard
+                },
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.dropzonecontainer
+                }],
+                'exit': [{
+                   name: 'scale-down-animation',
+                    node: this.$.infocard
                 },
                 {
                   name: 'scale-down-animation',

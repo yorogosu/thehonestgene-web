@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../risk-card/hg-risk-card.html">
 
 <dom-module id="hg-predictions-page">
@@ -15,6 +17,7 @@
       --paper-progress-height:20px;
     }
     .buttons {
+         @apply(--layout-horizontal);
          @apply(--layout-self-end);
     }
     paper-tabs {
@@ -160,7 +163,7 @@ Our algorithm’s training step is carried out on summarized genetic and phenoty
               type: Boolean,
               value:false,
               computed: '_containsItems(runningTraits)',
-          }
+          },
         },
         listeners: {
           'iron-resize': '_onIronResize'
