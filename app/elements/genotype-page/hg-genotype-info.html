@@ -101,13 +101,13 @@ Under normal circumstances, each individual bears two non-identical copies of ea
                     <div style="width:50%;margin-right:2px">
                         <hg-anim-card header="Total heterozygosity">
                             <google-chart class="front" id="homoChart" type="pie" data="{{dataForHetero}}" options="{{_getChartOptionsForHetero(dataForHetero)}}"></google-chart>
-                            <p class="back">This graph shows the proportion of homozygous (e.g. A/A or C/C) and heterozygous (e.g. A/C or T/G) genetic positions in your genome. Homozygosity and heterozygosity are useful reflections of variability and inbreeding status in a population. For instance, an unusually high incidence of homozygous positions in a genome may suggest inbreeding in recent generations. In addition, heterozygosity is a desirable feature in wild populations because it confers evolutionary benefits.</p>
+                            <p class="back">This graph shows the proportion of homozygous (e.g. A/A or C/C) and heterozygous (e.g. A/C or T/G) genetic positions in your genome. Homozygosity and heterozygosity are useful reflections of variability and inbreeding status in a population. For instance, an unusually high incidence of homozygous positions in a genome may suggest inbreeding in recent generations. In addition, heterozygosity is a desirable feature in endangered populations because it confers evolutionary benefits.</p>
                         </hg-anim-card>
                     </div>
                     <div style="width:50%;margin-left:2px">
                         <hg-anim-card header="Annotations" >
                             <google-chart class="front" id="annotationChart" type="pie" data="{{dataForAnnotations}}" options="{{_getChartOptionsForAnnotations(dataForAnnotations)}}"></google-chart>
-                            <p class="back">This graph shows the proportion of each genotypic category in your genome as reported by the third-party company that carried out your DNA analysis. A,C,G,T refer to the four DNA letters, where are I stands for insertion and D for deletion (of one or occasionally more letters). "__" stands for genomic positions that were programmed to be recorded but they eventually were not. Despite the missing information, there is still plenty of data for the subsequent analyses.</p>
+                            <p class="back">This graph shows the proportion of each genotypic category in your genome as reported by the third-party company that carried out your DNA analysis. A,C,G,T refer to the four DNA letters, where "I" stands for insertion and "D" for deletion (of one or occasionally more letters). "__" stands for genomic positions that were programmed to be recorded but they eventually were not. Despite the missing information, there is still plenty of data for the subsequent analyses.</p>
                         </hg-anim-card>
                     </div>
                 </div>
