@@ -77,12 +77,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <div class="description">
                     <h2>1. Genetic data</h2>
-                    <p>Individuals differ in the composition of their DNA sequences and such differences can be of many different types. Biotechnology companies are typically interested in the simplest type of such differences, the so-called point mutations or single nucleotide polymorphisms (SNPs Point mutations are changes of a single DNA letter at a time. A letter can either mutate to a different letter or it can be inserted/deleted from the original sequence. The user’s genetic data are nothing but long lists of such point mutations.<br>
-In general, an individual bears two non-identical copies of each of 22 chromosomes, as well as two sex chromosomes – two X chromosomes in the case of females, and one X and one Y in the case of males. When a point mutation is identical on both chromosome copies, the individual is said to be homozygous for that position; when the two copies differ, then the individual is said to be heterozygous for that position. Homozygosity and heterozygosity are useful reflections of variability and inbreeding status in a population.
+                    <p>Individuals differ in the composition of their DNA sequences and such differences can be of many different types. Biotechnology companies are typically interested in the simplest type of such differences, the so-called point mutations or single nucleotide polymorphisms (SNPs). Point mutations are changes of a single DNA letter at a time. A letter can mutate to a different letter or it can be inserted into/deleted from the original DNA sequence. The user’s genetic data are essentially long lists of such point mutations accompanied by chromosomal coordinates.<br>
+Under normal circumstances, each individual bears two non-identical copies of each of 22 chromosomes, as well as two sex chromosomes – two X chromosomes in the case of females, and one X and one Y in the case of males. When a point mutation is identical on both chromosome copies, the individual is said to be "homozygous" for that position; when the two copies differ, then the individual is said to be "heterozygous" for that position. Homozygosity and heterozygosity are useful reflections of variability and inbreeding status in a population.
                     </p>
                     <div class="controls">
                         <div hidden$="{{isFinished}}">Progress: <span>Uploading... <paper-progress class="transiting" value="{{state.progress}}"></paper-progress></div>
-                    <div hidden$="{{!isFinished}}">Total number of SNPs: <span>{{numberofsnps}}</span></div>
+                    <div hidden$="{{!isFinished}}">Total number of genetic positions (loci) available: <span>{{numberofsnps}}</span></div>
                         <div class="buttons">
                             <a href="/#/start/"><paper-button hidden$="{{isAnalysisRunning}}"><iron-icon icon="icons:chevron-left" ></iron-icon>Start</paper-button></a>
                             <paper-button id="nextBtn" on-tap="_onNextBtnClick" style$="visibility:{{_getNextBtnVisibility(isFinished)}}">Imputation
@@ -93,21 +93,21 @@ In general, an individual bears two non-identical copies of each of 22 chromosom
                 </div>
             </paper-material>
             <div class="chartcontainer" id="chartcontainer">
-               <hg-anim-card axis="x" header="Number of SNPs per chromosome" style="height:280px">
+               <hg-anim-card axis="x" header="Number of genetic loci per chromosome" style="height:280px">
                     <google-chart class="front" id="numberOfSNPsChart" type="column" data="{{dataForNumberOfSnps}}" options="{{_getChartOptionsForNumberOfSNPs(dataForNumberOfSnps)}}"></google-chart>
-                    <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p class="back">This graph shows the number of point mutations (SNPs) for which the third-party company of your choice provided information after analysing your genetic material. Users with a biology background might notice that the number of available SNPs is approximately proportional to the size of the chromosomes. This is because SNP density across the chromosomes is more or less fixed in the genotype platforms used by the third-party companies. Note that this is by no means an exhaustive number of point mutations in a human genome. Recent estimates bring this number up to 10 million.</p>
                 </hg-anim-card>
                 <div class="overallstats">
                     <div style="width:50%;margin-right:2px">
                         <hg-anim-card header="Total heterozygosity">
                             <google-chart class="front" id="homoChart" type="pie" data="{{dataForHetero}}" options="{{_getChartOptionsForHetero(dataForHetero)}}"></google-chart>
-                            <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            <p class="back">This graph shows the proportion of homozygous (e.g. A/A or C/C) and heterozygous (e.g. A/C or T/G) genetic positions in your genome. Homozygosity and heterozygosity are useful reflections of variability and inbreeding status in a population. For instance, an unusually high incidence of homozygous positions in a genome may suggest inbreeding in recent generations. In addition, heterozygosity is a desirable feature in wild populations because it confers evolutionary benefits.</p>
                         </hg-anim-card>
                     </div>
                     <div style="width:50%;margin-left:2px">
                         <hg-anim-card header="Annotations" >
                             <google-chart class="front" id="annotationChart" type="pie" data="{{dataForAnnotations}}" options="{{_getChartOptionsForAnnotations(dataForAnnotations)}}"></google-chart>
-                            <p class="back">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            <p class="back">This graph shows the proportion of each genotypic category in your genome as reported by the third-party company that carried out your DNA analysis. A,C,G,T refer to the four DNA letters, where are I stands for insertion and D for deletion (of one or occasionally more letters). "__" stands for genomic positions that were programmed to be recorded but they eventually were not. Despite the missing information, there is still plenty of data for the subsequent analyses.</p>
                         </hg-anim-card>
                     </div>
                 </div>
